@@ -5,10 +5,13 @@
 #include "GraphicsDisplay.h"
 #include "PAR8.h"
 #include "SPI8.h"
+#include "SPI16.h"
 #include "Protocols.h"
 
 #define Black           1
 #define White           0
+
+
 
 /** Draw mode
   * NORMAl
@@ -35,7 +38,7 @@ public:
     /** Create a monochrome LCD SPI interface
     * @param name The name used by the parent class to access the interface
     */
-    LCD(proto_t displayproto,PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const int lcdsize_x, const int lcdsize_y, const int ic_x_segs, const int ic_y_coms, const char* name);
+    LCD(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const int lcdsize_x, const int lcdsize_y, const int ic_x_segs, const int ic_y_coms, const char* name);
     
     /** Destructor
     * will free framebuffer
@@ -147,31 +150,65 @@ protected:
 ////// functions needed by parent class ///////////////////////////////////////
 ////// -------------------------------- ///////////////////////////////////////
 
-    /** Send command byte to display
-    * @param cmd is the command
-    */
-    void wr_cmd(unsigned char cmd);
-    
-    /** Send data byte to display
-    * @param data8 is the byte
-    */
-    void wr_data8(unsigned char data8);
-    
-    /** Send same data byte to display controller multiple times
+    /** Send 8bit command to display controller 
     *
-    * @param data8: byte to send
+    * @param cmd: byte to send  
+    * @note if protocol is SPI16, it will insert NOP cmd before, so if cmd is a 2byte cmd, the second cmd will be broken. Use wr_cmd16 for 2bytes cmds
+    */   
+    void wr_cmd8(unsigned char cmd);
+    
+    /** Send 8bit data to display controller 
+    *
+    * @param data: byte to send   
+    *
+    */   
+    void wr_data8(unsigned char data);
+    
+    /** Send same 8bit data to display controller multiple times
+    *
+    * @param data: byte to send
     * @param count: how many
     *
     */   
-    virtual void wr_data8(unsigned char data8, unsigned int count);
+    void wr_data8(unsigned char data, unsigned int count);
     
     /** Send array of data bytes to display controller
     *
-    * @param data8: unsigned char data array
+    * @param data: unsigned char data array
     * @param lenght: lenght of array
     *
     */   
-    virtual void wr_data8buf(unsigned char* data8, unsigned int lenght);
+    void wr_data8buf(unsigned char* data, unsigned int lenght);
+    
+    /** Send 16bit command to display controller 
+    *
+    * @param cmd: halfword to send  
+    *
+    */   
+    void wr_cmd16(unsigned short cmd);
+    
+    /** Send 16bit data to display controller 
+    *
+    * @param data: halfword to send   
+    *
+    */   
+    //void wr_data16(unsigned short data);
+    
+    /** Send same 16bit data to display controller multiple times
+    *
+    * @param data: halfword to send
+    * @param count: how many
+    *
+    */   
+    void wr_data16(unsigned short data, unsigned int count);
+    
+    /** Send array of data shorts to display controller
+    *
+    * @param data: unsigned short data array
+    * @param lenght: lenght (in shorts)
+    *
+    */   
+    void wr_data16buf(unsigned short* data, unsigned int lenght);
     
     /** HW reset sequence (without display init commands)   
     */
@@ -184,6 +221,7 @@ private:
 
 
     unsigned char *buffer;
+    unsigned short *buffer16;
     const int LCDSIZE_X;
     const int LCDSIZE_Y;
     const int LCDPAGES;
@@ -202,7 +240,7 @@ private:
     int win_y1;
     int win_y2;
     int orientation;
-  //  bool portrait;
+    bool useNOP;
 };
 
 #endif

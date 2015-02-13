@@ -18,8 +18,8 @@ IST3020::IST3020(proto_t displayproto, PortName port, PinName CS, PinName reset,
     BusEnable(true);
     init();  
 }
-IST3020::IST3020(proto_t displayproto, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const char *name)
-    : LCD(displayproto, mosi, miso, sclk, CS, reset, DC, LCDSIZE_X, LCDSIZE_Y, IC_X_SEGS, IC_Y_COMS, name)
+IST3020::IST3020(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const char *name)
+    : LCD(displayproto, Hz, mosi, miso, sclk, CS, reset, DC, LCDSIZE_X, LCDSIZE_Y, IC_X_SEGS, IC_Y_COMS, name)
 {
     hw_reset();
     init();  
@@ -29,35 +29,35 @@ void IST3020::init()
 {
     /* Start Initial Sequence ----------------------------------------------------*/
     
-    wr_cmd(0xE2);   //  sw reset
+    wr_cmd8(0xE2);   //  sw reset
     wait_ms(10);
     
-    wr_cmd(0xAE);   //  display off
-    wr_cmd(0xAB);   //  built-in OSC on
-    wr_cmd(0xA2);   //  bias voltage (1/9)
-  //  wr_cmd(0xA3);   //  bias voltage (1/7)
+    wr_cmd8(0xAE);   //  display off
+    wr_cmd8(0xAB);   //  built-in OSC on
+    wr_cmd8(0xA2);   //  bias voltage (1/9)
+  //  wr_cmd8(0xA3);   //  bias voltage (1/7)
 
-    wr_cmd(0xA0);   // ADC select seg0-seg223
-    //wr_cmd(0xA1);   // ADC select seg223-seg0
-    wr_cmd(0xC8);   // SHL select com63-com0
-    //wr_cmd(0xC0);   // SHL select com0-com63
+    wr_cmd8(0xA0);   // ADC select seg0-seg223
+    //wr_cmd8(0xA1);   // ADC select seg223-seg0
+    wr_cmd8(0xC8);   // SHL select com63-com0
+    //wr_cmd8(0xC0);   // SHL select com0-com63
 
-    wr_cmd(0x2C);   //  Internal Voltage Converter ON
+    wr_cmd8(0x2C);   //  Internal Voltage Converter ON
     wait_ms(10);
-    wr_cmd(0x2E);   //  Internal Voltage Regulator ON
+    wr_cmd8(0x2E);   //  Internal Voltage Regulator ON
     wait_ms(10);
-    wr_cmd(0x2F);   //  Internal Voltage Follower ON
+    wr_cmd8(0x2F);   //  Internal Voltage Follower ON
     wait_ms(10);
-    wr_cmd(0x20);   //  Regulor_Resistor_Select resistor ratio 20-27 20=4.5(default) 27=8.0, 0.5 steps
+    wr_cmd8(0x20);   //  Regulor_Resistor_Select resistor ratio 20-27 20=4.5(default) 27=8.0, 0.5 steps
     set_contrast(48);
-    //wr_cmd(0x81);   //  set contrast (reference voltage register set)
-    //wr_cmd(0x20);   //  contrast 00-3F default 20
+    //wr_cmd8(0x81);   //  set contrast (reference voltage register set)
+    //wr_cmd8(0x20);   //  contrast 00-3F default 20
     
-    wr_cmd(0xA4);   //  LCD display ram (EntireDisplayOn disable)
-    //wr_cmd(0x70);   //  External Capacitors Discharge function enable (should be enabled by default)
-    //wr_cmd(0x77);   //  External Capacitors Discharge function disable
-    wr_cmd(0x40);   // start line = 0
-    wr_cmd(0xA6);     // display normal (1 = illuminated)
-    wr_cmd(0xAF);     // display ON 
+    wr_cmd8(0xA4);   //  LCD display ram (EntireDisplayOn disable)
+    //wr_cmd8(0x70);   //  External Capacitors Discharge function enable (should be enabled by default)
+    //wr_cmd8(0x77);   //  External Capacitors Discharge function disable
+    wr_cmd8(0x40);   // start line = 0
+    wr_cmd8(0xA6);     // display normal (1 = illuminated)
+    wr_cmd8(0xAF);     // display ON 
 
 }

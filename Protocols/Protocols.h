@@ -21,35 +21,65 @@ class Protocols
 {
  public:
     
-    /** Send command byte to display controller 
+    /** Send 8bit command to display controller 
     *
     * @param cmd: byte to send  
     *
     */   
-    virtual void wr_cmd(unsigned char cmd) = 0;
+    virtual void wr_cmd8(unsigned char cmd) = 0;
     
-    /** Send data byte to display controller 
+    /** Send 8bit data to display controller 
     *
-    * @param data8: byte to send   
+    * @param data: byte to send   
     *
     */   
-    virtual void wr_data8(unsigned char data8) = 0;
+    virtual void wr_data8(unsigned char data) = 0;
     
-    /** Send same data byte to display controller multiple times
+    /** Send same 8bit data to display controller multiple times
     *
-    * @param data8: byte to send
+    * @param data: byte to send
     * @param count: how many
     *
     */   
-    virtual void wr_data8(unsigned char data8, unsigned int count) = 0;
+    virtual void wr_data8(unsigned char data, unsigned int count) = 0;
     
     /** Send array of data bytes to display controller
     *
-    * @param data8: unsigned char data array
-    * @param lenght: lenght of array
+    * @param data: unsigned char data array
+    * @param lenght: lenght
     *
     */   
-    virtual void wr_data8buf(unsigned char* data8, unsigned int lenght) = 0;
+    virtual void wr_data8buf(unsigned char* data, unsigned int lenght) = 0;
+    
+    /** Send 16bit command to display controller 
+    *
+    * @param cmd: halfword to send  
+    *
+    */   
+    virtual void wr_cmd16(unsigned short cmd) = 0;
+    
+    /** Send 16bit data to display controller 
+    *
+    * @param data: halfword to send   
+    *
+    */   
+    virtual void wr_data16(unsigned short data) = 0;
+    
+    /** Send same 16bit data to display controller multiple times
+    *
+    * @param data: halfword to send
+    * @param count: how many
+    *
+    */   
+    virtual void wr_data16(unsigned short data, unsigned int count) = 0;
+    
+    /** Send array of data shorts to display controller
+    *
+    * @param data: unsigned short data array
+    * @param lenght: lenght (in shorts)
+    *
+    */   
+    virtual void wr_data16buf(unsigned short* data, unsigned int lenght) = 0;
     
     /** HW reset sequence (without display init commands)   
     */

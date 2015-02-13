@@ -27,7 +27,7 @@ void PAR8::findport(PortName port)
  //   debug("out 0x%.8X  in 0x%.8X\r\n", outreg, inreg);
 }
 #endif
-void PAR8::wr_cmd(unsigned char cmd)
+void PAR8::wr_cmd8(unsigned char cmd)
 {   
 #ifdef USE_CS
     _CS = 0;
@@ -40,26 +40,26 @@ void PAR8::wr_cmd(unsigned char cmd)
     _CS = 1;
 #endif
 }
-void PAR8::wr_data8(unsigned char data8)
+void PAR8::wr_data8(unsigned char data)
 {
 #ifdef USE_CS
     _CS = 0;
 #endif
     _DC = 1; // 1=data
     _WR=0;
-    _port.write(data8);    // write 8bit
+    _port.write(data);    // write 8bit
     _WR=1;
 #ifdef USE_CS
     _CS = 1;
 #endif
 }
-void PAR8::wr_data8(unsigned char data8, unsigned int count)
+void PAR8::wr_data8(unsigned char data, unsigned int count)
 {
 #ifdef USE_CS
     _CS = 0;
 #endif
     _DC = 1; // 1=data
-    _port.write(data8);    // write 8bit
+    _port.write(data);    // write 8bit
     while(count)
     {
         _WR=0;
@@ -71,7 +71,7 @@ void PAR8::wr_data8(unsigned char data8, unsigned int count)
     _CS = 1;
 #endif
 }
-void PAR8::wr_data8buf(unsigned char* data8, unsigned int lenght)
+void PAR8::wr_data8buf(unsigned char* data, unsigned int lenght)
 {
 #ifdef USE_CS
     _CS = 0;
@@ -80,8 +80,95 @@ void PAR8::wr_data8buf(unsigned char* data8, unsigned int lenght)
     while(lenght)
     {
         _WR=0;
-        _port.write(*data8++);    // write 8bit
+        _port.write(*data++);    // write 8bit
         _WR=1;
+        lenght--;
+    }
+#ifdef USE_CS
+    _CS = 1;
+#endif
+}
+void PAR8::wr_cmd16(unsigned short cmd)
+{   
+#ifdef USE_CS
+    _CS = 0;
+#endif    
+    _DC = 0; // 0=cmd
+    _WR=0;
+    _port.write(cmd>>8);      // write 8bit
+    _WR=1;
+    _WR=0;
+    _port.write(cmd&0xFF);      // write 8bit
+    _WR=1;
+#ifdef USE_CS
+    _CS = 1;
+#endif
+}
+void PAR8::wr_data16(unsigned short data)
+{
+#ifdef USE_CS
+    _CS = 0;
+#endif
+    _DC = 1; // 1=data
+    _WR=0;
+    _port.write(data>>8);    // write 8bit
+    _WR=1;
+    _WR=0;
+    _port.write(data&0xFF);    // write 8bit
+    _WR=1;
+#ifdef USE_CS
+    _CS = 1;
+#endif
+}
+void PAR8::wr_data16(unsigned short data, unsigned int count)
+{
+#ifdef USE_CS
+    _CS = 0;
+#endif
+    _DC = 1; // 1=data
+    if((data>>8)==(data&0xFF))
+    {
+        count<<=1;
+        _port.write(data);    // write 8bit
+        while(count)
+        {
+            _WR=0;
+            _WR=1;
+            count--;
+        }
+    }
+    else
+    {
+        while(count)
+        {
+            _WR=0;
+            _port.write(data>>8);    // write 8bit
+            _WR=1;
+            _WR=0;
+            _port.write(data&0xFF);    // write 8bit
+            _WR=1;
+            count--;
+        }
+    }
+#ifdef USE_CS
+    _CS = 1;
+#endif
+}
+void PAR8::wr_data16buf(unsigned short* data, unsigned int lenght)
+{
+#ifdef USE_CS
+    _CS = 0;
+#endif
+    _DC = 1; // 1=data
+    while(lenght)
+    {
+        _WR=0;
+        _port.write((*data)>>8);    // write 8bit
+        _WR=1;
+        _WR=0;
+        _port.write((*data)&0xFF);    // write 8bit
+        _WR=1;
+        data++;
         lenght--;
     }
 #ifdef USE_CS

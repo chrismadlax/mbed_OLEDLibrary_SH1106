@@ -1,11 +1,11 @@
-#ifndef SPI8_H
-#define SPI8_H
+#ifndef SPI16_H
+#define SPI16_H
 
 #include "mbed.h"
 #include "Protocols.h"
 //#include "GraphicsDisplay.h"
 
-class SPI8 : public Protocols
+class SPI16 : public Protocols
 {
  public:
 
@@ -18,12 +18,13 @@ class SPI8 : public Protocols
     * @param reset pin connected to RESET of display
     * @param DC pin connected to data/command of display
     */ 
-    SPI8(int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC);
+    SPI16(int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC);
  
 protected:
    
     /** Send 8bit command to display controller 
     *
+    * @note switches spi format 16->8->16, better use wr_cmd16 with NOP in front 
     * @param cmd: byte to send  
     *
     */   
@@ -31,6 +32,7 @@ protected:
     
     /** Send 8bit data to display controller 
     *
+    * @note switches spi format 16->8->16, better use wr_data16 with repeated byte (if does not hurt)
     * @param data: byte to send   
     *
     */   
@@ -38,6 +40,7 @@ protected:
     
     /** Send same 8bit data to display controller multiple times
     *
+    * @note switches spi format 16->8->16, better use wr_data16
     * @param data: byte to send
     * @param count: how many
     *
@@ -46,6 +49,7 @@ protected:
     
     /** Send array of data bytes to display controller
     *
+    * @note switches spi format 16->8->16, better use wr_data16
     * @param data: unsigned char data array
     * @param lenght: lenght of array
     *
