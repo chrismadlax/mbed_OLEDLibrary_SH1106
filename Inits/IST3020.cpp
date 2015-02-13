@@ -16,13 +16,20 @@ IST3020::IST3020(proto_t displayproto, PortName port, PinName CS, PinName reset,
 {
     hw_reset();
     BusEnable(true);
-    init();  
+    init();
+    cls();
+    set_orientation(1);
+    locate(0,0);
 }
 IST3020::IST3020(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const char *name)
     : LCD(displayproto, Hz, mosi, miso, sclk, CS, reset, DC, LCDSIZE_X, LCDSIZE_Y, IC_X_SEGS, IC_Y_COMS, name)
 {
     hw_reset();
-    init();  
+    BusEnable(true);
+    init();
+    cls();
+    set_orientation(1);
+    locate(0,0);
 }
 // reset and init the lcd controller
 void IST3020::init()

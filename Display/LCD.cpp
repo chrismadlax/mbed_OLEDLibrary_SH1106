@@ -5,9 +5,9 @@
 //#define IC_PAGES        (IC_Y_COMS>>3) // max pages in IC ddram, 8raws per page
 #define SWAP(a, b)  { a ^= b; b ^= a; a ^= b; }
 //#define USEFRAMEBUFFER
-#define NOPCMD 0xE300
+
 //#define FRAMEBUFSIZE    (LCDSIZE_X*LCDPAGES)
-Protocols* proto;
+
 
 LCD::LCD(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const int lcdsize_x, const int lcdsize_y, const int ic_x_segs, const int ic_y_coms, const char *name)
     : /*PAR8(port, CS, reset, DC, WR, RD),*/ GraphicsDisplay(name), LCDSIZE_X(lcdsize_x), LCDSIZE_Y(lcdsize_y), LCDPAGES(lcdsize_y>>3), IC_X_SEGS(ic_x_segs), IC_Y_COMS(ic_y_coms), IC_PAGES(ic_y_coms>>3)
@@ -22,6 +22,9 @@ LCD::LCD(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName
     buffer16 = (unsigned short*)buffer;
     draw_mode = NORMAL;
     set_orientation(1);
+    foreground(Black);
+    background(White);
+    set_auto_up(true);
   //  cls();
   //  locate(0,0);
 }
@@ -47,6 +50,9 @@ LCD::LCD(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk,
     draw_mode = NORMAL;
   //  cls();
     set_orientation(1);
+    foreground(Black);
+    background(White);
+    set_auto_up(true);
   //  locate(0,0);
 
 }
@@ -57,7 +63,7 @@ LCD::~LCD()
 
 void LCD::wr_cmd8(unsigned char cmd)
     {
-        if(useNOP) proto->wr_cmd16(NOPCMD|cmd);
+        if(useNOP) proto->wr_cmd16(0xE300|cmd); // E3 is NOP cmd for LCD
         else proto->wr_cmd8(cmd);
     }
 void LCD::wr_data8(unsigned char data)
@@ -169,15 +175,7 @@ void LCD::set_contrast(int o)
  //   wr_cmd8(0x81);      //  set volume
     wr_cmd16(0x8100|(o&0x3F));
 }
-void LCD::set_auto_up(bool up)
-{
-    if(up) auto_up = true;
-    else auto_up = false;
-}
-bool LCD::get_auto_up(void)
-{
-    return (auto_up);
-}
+
 int LCD::get_contrast(void)
 {
     return(contrast);
@@ -203,6 +201,40 @@ void LCD::window_pushpixel(unsigned short color) {
         }
     }
 }
+void LCD::window_pushpixel(unsigned short color, unsigned int count) {
+    while(count)
+    {
+        pixel(cur_x, cur_y, color);
+        cur_x++;
+        if(cur_x > win_x2)
+        {
+            cur_x = win_x1;
+            cur_y++;
+            if(cur_y > win_y2)
+            {
+                cur_y = win_y1;
+            }
+        }
+        count--;
+    }
+}
+void LCD::window_pushpixelbuf(unsigned short* color, unsigned int lenght) {
+    while(lenght)
+    {
+        pixel(cur_x, cur_y, *color++);
+        cur_x++;
+        if(cur_x > win_x2)
+        {
+            cur_x = win_x1;
+            cur_y++;
+            if(cur_y > win_y2)
+            {
+                cur_y = win_y1;
+            }
+        }
+        lenght--;
+    }
+}
 void LCD::pixel(int x, int y, unsigned short color)
 {
     if(!(orientation&1)) SWAP(x,y);
@@ -211,7 +243,7 @@ void LCD::pixel(int x, int y, unsigned short color)
 
 //    if(draw_mode == NORMAL)
 //    {
-        if(color == 0) buffer[(x + ((y>>3)*LCDSIZE_X))^1] &= ~(1 << (y&7));  // erase pixel
+        if(color == Black) buffer[(x + ((y>>3)*LCDSIZE_X))^1] &= ~(1 << (y&7));  // erase pixel
         else buffer[(x + ((y>>3)*LCDSIZE_X))^1] |= (1 << (y&7));   // set pixel
 //    }
 //    else

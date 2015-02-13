@@ -7,8 +7,8 @@
 #define SWAP(a, b)  { a ^= b; b ^= a; a ^= b; }
 GraphicsDisplay::GraphicsDisplay(const char *name):TextDisplay(name) {
     set_font((unsigned char*)Terminal6x8);
-    foreground(0xFFFF);
-    background(0x0000);
+ //   foreground(0xFFFF);
+ //   background(0x0000);
     char_x = 0;
     char_y = 0;
     oriented_width=0;
@@ -76,19 +76,19 @@ void GraphicsDisplay::fillcircle(int x0, int y0, int r, unsigned short color)
 }
 void GraphicsDisplay::hline(int x0, int x1, int y, unsigned short color)
 {
-    int len;
-    len = x1 - x0 + 1;
+    int len = x1 - x0 + 1;
     window(x0,y,len,1);
-    for (int j=0; j<len; j++) window_pushpixel(color);
+ //   for (int j=0; j<len; j++) window_pushpixel(color);
+    window_pushpixel(color, len);
     if(auto_up) copy_to_lcd();
     return;
 }
 void GraphicsDisplay::vline(int x, int y0, int y1, unsigned short color)
 {
-    int len;
-    len = y1 - y0 + 1;
+    int len = y1 - y0 + 1;
     window(x,y0,1,len);
-    for (int y=0; y<len; y++) window_pushpixel(color);
+  //  for (int y=0; y<len; y++) window_pushpixel(color);
+    window_pushpixel(color, len);
     if(auto_up) copy_to_lcd();
     return;
 }
@@ -194,7 +194,8 @@ void GraphicsDisplay::fillrect(int x0, int y0, int x1, int y1, unsigned short co
     int w = x1 - x0 + 1;
     unsigned int pixels = h * w;
     window(x0,y0,w,h);
-    for (unsigned int p=0; p<pixels; p++) window_pushpixel(color);
+ //   for (unsigned int p=0; p<pixels; p++) window_pushpixel(color);
+    window_pushpixel(color, pixels);
     if(auto_up) copy_to_lcd();
     return;
 }
@@ -327,7 +328,7 @@ void GraphicsDisplay::Bitmap(int x, int y, int w, int h,unsigned char *bitmap)
     for (j = 0; j < h; j++) {         //Lines
         if((h + y) >= oriented_height) break; // no need to crop Y
         for (i = 0; i < w; i++) {     // one line
-                if((w + x) < oriented_width) window_pushpixel(*bitmap_ptr);
+                if((w + x) < oriented_width) window_pushpixel(*bitmap_ptr); //fixme, send chunk w-cropX lenght and incr bitmapptr if out of margin
                 bitmap_ptr++;
         }
         bitmap_ptr -= 2*w;
@@ -405,10 +406,13 @@ int GraphicsDisplay::BMP_16(int x, int y, const char *Name_BMP)
         off = j * (PixelWidth  * 2 + padd) + start_data;   // start of line
         fseek(Image, off ,SEEK_SET);
         fread(line,1,PixelWidth * 2,Image);       // read a line - slow 
-        for (i = 0; i < PixelWidth; i++) {        // copy pixel data to TFT
+  /*      for (i = 0; i < PixelWidth; i++)
+        {        // copy pixel data to TFT
      //       wr_16(line[i]);                  // one 16 bit pixel   
             window_pushpixel(line[i]);
-        } 
+            
+        } */
+        window_pushpixelbuf(line, PixelWidth);
      }
     free (line);
     fclose(Image);
@@ -425,6 +429,14 @@ void GraphicsDisplay::cls (void)
         window_pushpixel(_background);
     }
 }
-
+void GraphicsDisplay::set_auto_up(bool up)
+{
+    if(up) auto_up = true;
+    else auto_up = false;
+}
+bool GraphicsDisplay::get_auto_up(void)
+{
+    return (auto_up);
+}
 
 

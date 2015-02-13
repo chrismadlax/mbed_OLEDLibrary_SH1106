@@ -17,6 +17,29 @@
 #include "TextDisplay.h"
 #include "Terminal6x8.h"
 
+#define RGB(r,g,b)  (((r&0xF8)<<8)|((g&0xFC)<<3)|((b&0xF8)>>3)) //5 red | 6 green | 5 blue
+#define BGR2RGB(color) (((color&0x1F)<<11) | (color&0x7E0) | ((color&0xF800)>>11))
+
+/* some RGB color definitions                                                 */
+#define Black           0x0000      /*   0,   0,   0 */
+#define Navy            0x000F      /*   0,   0, 128 */
+#define DarkGreen       0x03E0      /*   0, 128,   0 */
+#define DarkCyan        0x03EF      /*   0, 128, 128 */
+#define Maroon          0x7800      /* 128,   0,   0 */
+#define Purple          0x780F      /* 128,   0, 128 */
+#define Olive           0x7BE0      /* 128, 128,   0 */
+#define LightGrey       0xC618      /* 192, 192, 192 */
+#define DarkGrey        0x7BEF      /* 128, 128, 128 */
+#define Blue            0x001F      /*   0,   0, 255 */
+#define Green           0x07E0      /*   0, 255,   0 */
+#define Cyan            0x07FF      /*   0, 255, 255 */
+#define Red             0xF800      /* 255,   0,   0 */
+#define Magenta         0xF81F      /* 255,   0, 255 */
+#define Yellow          0xFFE0      /* 255, 255,   0 */
+#define White           0xFFFF      /* 255, 255, 255 */
+#define Orange          0xFD20      /* 255, 165,   0 */
+#define GreenYellow     0xAFE5      /* 173, 255,  47 */
+
 /** Bitmap
  */
 struct Bitmap_s{
@@ -69,6 +92,19 @@ public:
     * @note this method must be overridden in a derived class.
     */
     virtual void window_pushpixel(unsigned short color) = 0;
+    
+    /** Push some pixels of the same color into the window and increment position.
+    * You must first call window() then push pixels.
+    * @param color is the pixel color.
+    * @param count: how many
+    */
+    virtual void window_pushpixel(unsigned short color, unsigned int count) = 0;
+    
+    /** Push array of pixel colors into the window and increment position.
+    * You must first call window() then push pixels.
+    * @param color is the pixel color.
+    */
+    virtual void window_pushpixelbuf(unsigned short* color, unsigned int lenght) = 0;
   
     /** If framebuffer is used, it needs to be sent to LCD from time to time
     @note this method must be overridden in a derived class.
@@ -277,12 +313,19 @@ public:
     */
     void set_height(int height);
     
-    
-protected:
-
-    
-    
-    bool auto_up;  // autoupdate flag for LCD
+    /** setup auto update of screen 
+      *
+      * @param up 1 = on , 0 = off
+      * if switched off the program has to call copy_to_lcd() 
+      * to update screen from framebuffer
+      */
+    void set_auto_up(bool up);
+ 
+    /** get status of the auto update function
+      *
+      *  @returns if auto update is on
+      */
+    bool get_auto_up(void); 
     
     
     
@@ -303,8 +346,7 @@ private:
     int fontbpl;   // bytes per line (char)
     unsigned char firstch;  // first ascii code present in font array (usually 32)
     unsigned char lastch;   // last ascii code present in font array (usually 127)
-    
-    
+    bool auto_up;  // autoupdate flag for LCD   
     
 
 };
