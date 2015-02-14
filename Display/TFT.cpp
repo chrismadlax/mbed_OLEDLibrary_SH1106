@@ -1,3 +1,15 @@
+/* mbed library for 240*320 pixel display TFT based on ILI9341 LCD Controller
+ * Copyright (c) 2013 Peter Drescher - DC2PD
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #include "TFT.h"
 
 //#include "mbed_debug.h"
@@ -87,25 +99,25 @@ void TFT::set_orientation(int o)
     switch (orientation) {
         case 0:// default, portrait view 0°
             if(mipistd) wr_data8(0x0A); // this is in real a vertical flip enabled, seems most displays are vertical flipped
-            else wr_data8(0x48); //48 for 9341
+            else wr_data8(0x48); //for some other ILIxxxx
             set_width(LCDSIZE_X);
             set_height(LCDSIZE_Y);
             break;
         case 1:// landscape view +90°
             if(mipistd) wr_data8(0x28); 
-            else wr_data8(0x29);//28 for 9341
+            else wr_data8(0x29);//for some other ILIxxxx
             set_width(LCDSIZE_Y);
             set_height(LCDSIZE_X);
             break;
         case 2:// portrait view +180°
             if(mipistd) wr_data8(0x09); 
-            else wr_data8(0x99);//88 for 9341
+            else wr_data8(0x99);//for some other ILIxxxx
             set_width(LCDSIZE_X);
             set_height(LCDSIZE_Y);
             break;
         case 3:// landscape view -90°
             if(mipistd) wr_data8(0x2B); 
-            else wr_data8(0xF8);//E8 for 9341
+            else wr_data8(0xF8);//for some other ILIxxxx
             set_width(LCDSIZE_Y);
             set_height(LCDSIZE_X);
             break;
@@ -116,6 +128,7 @@ void TFT::window(int x, int y, int w, int h)
 {
     //ili9486 does not like truncated 2A/2B cmds, at least in par mode
     //setting only start column/page would speedup, but needs a windowmax() before, maybe implement later
+    //fixme for PAR_16: // cmd 2A/2B expects 8bit parameters
     wr_cmd8(0x2A);
     wr_data16(x);   //start column
     wr_data16(x+w-1);//end column

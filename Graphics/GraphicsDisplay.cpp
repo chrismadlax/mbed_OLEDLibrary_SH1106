@@ -1,4 +1,17 @@
-/* mbed GraphicsDisplay Display Library Base Class
+ 
+ /* mbed library for 240*320 pixel display TFT based on ILI9341 LCD Controller
+ * Copyright (c) 2013 Peter Drescher - DC2PD
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+ 
+ /* mbed GraphicsDisplay Display Library Base Class
  * Copyright (c) 2007-2009 sford
  * Released under the MIT License: http://mbed.org/license/mit
  */
@@ -212,7 +225,7 @@ int GraphicsDisplay::rows()
 {
     return oriented_height / fontvert;
 }
-void GraphicsDisplay::set_font(unsigned char* f, unsigned char firstascii, unsigned char lastascii)
+void GraphicsDisplay::set_font(unsigned char* f, unsigned char firstascii, unsigned char lastascii, bool proportional)
 {
     font = f;
     // read font parameter from start of array
@@ -224,6 +237,7 @@ void GraphicsDisplay::set_font(unsigned char* f, unsigned char firstascii, unsig
     fontoffset = (fonthor*fontbpl)+1;
     firstch = firstascii;   // first ascii code present in font array (usually 32)
     lastch = lastascii;     // last ascii code present in font array (usually 127)
+    fontprop=proportional;
 }
 int GraphicsDisplay::_putc(int value)
 {
@@ -279,7 +293,8 @@ void GraphicsDisplay::character(int x, int y, int c)
             }
         }
     }
-    char_x += w;
+    if(fontprop) char_x += w;
+    else char_x += fonthor;
 }
 void GraphicsDisplay::Bitmap_BW(Bitmap_s bm, int x, int y)
 {

@@ -1,6 +1,8 @@
 #include "Protocols.h"
 #include "IST3020.h"
 
+/*this is a quite standard config, should be compatible with ST7565, except bigger screen and diff resistor ratio value*/
+
 //////////////////////////////////////////////////////////////////////////////////
 // display settings ///////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////
@@ -32,6 +34,7 @@ IST3020::IST3020(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinNa
     locate(0,0);
 }
 // reset and init the lcd controller
+// init sequence is manufacturer specific
 void IST3020::init()
 {
     /* Start Initial Sequence ----------------------------------------------------*/
@@ -56,7 +59,7 @@ void IST3020::init()
     wr_cmd8(0x2F);   //  Internal Voltage Follower ON
     wait_ms(10);
     wr_cmd8(0x20);   //  Regulor_Resistor_Select resistor ratio 20-27 20=4.5(default) 27=8.0, 0.5 steps
-    set_contrast(48);
+    set_contrast(46);
     //wr_cmd8(0x81);   //  set contrast (reference voltage register set)
     //wr_cmd8(0x20);   //  contrast 00-3F default 20
     

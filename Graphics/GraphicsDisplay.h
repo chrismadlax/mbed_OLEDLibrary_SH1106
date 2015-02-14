@@ -269,6 +269,7 @@ public:
    * @param f pointer to font array 
    * @param firstascii first ascii code present in font array, default 32 (space)
    * @param lastascii last ascii code present in font array, default 127 (DEL)
+   * @param proportional enable/disable variable font width (default enabled)
    *                                                                              
    *   font array can created with GLCD Font Creator from http://www.mikroe.com
    *   you have to add 4 parameter at the beginning of the font array to use: 
@@ -279,7 +280,7 @@ public:
    *   you also have to change the array to cont unsigned char[] and __align(2)
    *
    */  
-  void set_font(unsigned char* f, unsigned char firstascii=32, unsigned char lastascii=127);
+  void set_font(unsigned char* f, unsigned char firstascii=32, unsigned char lastascii=127, bool proportional = true);
 
     /** Get the number of columns based on the currently active font.
     * @returns number of columns.
@@ -346,7 +347,8 @@ private:
     int fontbpl;   // bytes per line (char)
     unsigned char firstch;  // first ascii code present in font array (usually 32)
     unsigned char lastch;   // last ascii code present in font array (usually 127)
-    bool auto_up;  // autoupdate flag for LCD   
+    bool auto_up;  // autoupdate flag for LCD
+    bool fontprop;
     
 
 };

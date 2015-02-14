@@ -52,8 +52,8 @@ void UC1608::init()
     wait_ms(10);
     
    // wr_cmd8(0x81);//Set Gain and Potentiometer
-  //  wr_cmd8(0x40|46);//Set Gain and Potentiometer  xx xxxxxx
-    set_contrast(46);
+  //  wr_cmd8(0x40|26);//Set Gain and Potentiometer  xx xxxxxx
+    set_contrast(26);
     
     wr_cmd8(0x88);   //disable colum/page address wraparound
     wr_cmd8(0xA4);   //  LCD display ram (EntireDisplayOn disable)

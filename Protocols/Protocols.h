@@ -5,6 +5,8 @@
 
 #include "mbed.h"
 
+//#define USE_CS
+
 /** Protocol types
 */
 enum proto_t {
