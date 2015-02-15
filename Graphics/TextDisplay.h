@@ -98,8 +98,8 @@ protected:
     int _row;
 
     // colours
-    uint16_t _foreground;
-    uint16_t _background;
+    volatile uint16_t _foreground;
+    volatile uint16_t _background;
     char *_path;
 };
 

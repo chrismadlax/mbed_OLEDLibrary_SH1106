@@ -1,15 +1,15 @@
-#ifndef PAR8_H
-#define PAR8_H
+#ifndef PAR16_H
+#define PAR16_H
 
 #include "mbed.h"
 #include "Protocols.h"
 //#include "GraphicsDisplay.h"
 
-class PAR8 : public Protocols
+class PAR16 : public Protocols
 {
  public:
 
-    /** Create a PAR8 display interface with a GPIO port and 5 control pins
+    /** Create a PAR16 display interface with a GPIO port and 5 control pins
     *
     * @param port GPIO port to use
     * @param CS pin connected to CS of display
@@ -18,7 +18,7 @@ class PAR8 : public Protocols
     * @param WR pin connected to SDI of display
     * @param RD pin connected to RS of display 
     */ 
-    PAR8(PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD);
+    PAR16(PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD);
 
 protected:
   
@@ -39,21 +39,21 @@ protected:
     /** Send 2x8bit command to display controller 
     *
     * @param cmd: halfword to send  
-    *
+    * @note 2cycles using pins[7:0]
     */   
     virtual void wr_cmd16(unsigned short cmd);
     
     /** Send 2x8bit data to display controller 
     *
     * @param data: halfword to send   
-    *
+    * @note 2cycles using pins[7:0], only gram write cmd uses pins[15:8]
     */   
     virtual void wr_data16(unsigned short data);
     
     /** Send 16bit pixeldata to display controller 
     *
     * @param data: halfword to send   
-    *
+    * @note here using all pins[15:0]
     */   
     virtual void wr_gram(unsigned short data);
     
@@ -61,7 +61,7 @@ protected:
     *
     * @param data: halfword to send
     * @param count: how many
-    *
+    * @note here using all pins[15:0]
     */   
     virtual void wr_gram(unsigned short data, unsigned int count);
     
@@ -69,7 +69,7 @@ protected:
     *
     * @param data: unsigned short pixeldata array
     * @param lenght: lenght (in shorts)
-    *
+    * @note here using all pins[15:0]
     */   
     virtual void wr_grambuf(unsigned short* data, unsigned int lenght);
     

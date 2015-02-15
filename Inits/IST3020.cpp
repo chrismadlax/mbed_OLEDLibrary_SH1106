@@ -1,3 +1,7 @@
+ /* mbed UniGraphic library - Device specific class
+ * Copyright (c) 2015 Giuliano Dianda
+ * Released under the MIT License: http://mbed.org/license/mit
+ */
 #include "Protocols.h"
 #include "IST3020.h"
 

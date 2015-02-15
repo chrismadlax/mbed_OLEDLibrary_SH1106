@@ -1,4 +1,10 @@
-/* mbed library for the mbed Lab Board  128*32 pixel LCD
+/* mbed UniGraphic library - universal LCD driver class
+ * Copyright (c) 2015 Giuliano Dianda
+ * Released under the MIT License: http://mbed.org/license/mit
+ *
+ * Derived work of:
+ *
+ * mbed library for the mbed Lab Board  128*32 pixel LCD
  * use C12832 controller
  * Copyright (c) 2012 Peter Drescher - DC2PD
  * Released under the MIT License: http://mbed.org/license/mit
@@ -36,8 +42,8 @@ LCD::LCD(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName
     buffer16 = (unsigned short*)buffer;
     draw_mode = NORMAL;
     set_orientation(1);
-    foreground(Black);
-    background(White);
+    foreground(White);
+    background(Black);
     set_auto_up(true);
   //  cls();
   //  locate(0,0);
@@ -64,8 +70,8 @@ LCD::LCD(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk,
     draw_mode = NORMAL;
   //  cls();
     set_orientation(1);
-    foreground(Black);
-    background(White);
+    foreground(White);
+    background(Black);
     set_auto_up(true);
   //  locate(0,0);
 
@@ -84,25 +90,17 @@ void LCD::wr_data8(unsigned char data)
     {
         proto->wr_data8(data);
     }
-void LCD::wr_data8(unsigned char data, unsigned int count)
-    {
-        proto->wr_data8(data, count);
-    }
-void LCD::wr_data8buf(unsigned char* data, unsigned int lenght)
-    {
-        proto->wr_data8buf(data, lenght);
-    }
 void LCD::wr_cmd16(unsigned short cmd)
     {
         proto->wr_cmd16(cmd);
     }
-void LCD::wr_data16(unsigned short data, unsigned int count)
+void LCD::wr_gram(unsigned short data, unsigned int count)
     {
-        proto->wr_data16(data, count);
+        proto->wr_gram(data, count);
     }
-void LCD::wr_data16buf(unsigned short* data, unsigned int lenght)
+void LCD::wr_grambuf(unsigned short* data, unsigned int lenght)
     {
-        proto->wr_data16buf(data, lenght);
+        proto->wr_grambuf(data, lenght);
     }
 void LCD::hw_reset()
     {
@@ -257,8 +255,8 @@ void LCD::pixel(int x, int y, unsigned short color)
 
 //    if(draw_mode == NORMAL)
 //    {
-        if(color == Black) buffer[(x + ((y>>3)*LCDSIZE_X))^1] &= ~(1 << (y&7));  // erase pixel
-        else buffer[(x + ((y>>3)*LCDSIZE_X))^1] |= (1 << (y&7));   // set pixel
+        if(color) buffer[(x + ((y>>3)*LCDSIZE_X))^1] &= ~(1 << (y&7));  // erase pixel
+        else buffer[(x + ((y>>3)*LCDSIZE_X))^1] |= (1 << (y&7));   //Black=0000, set pixel
 //    }
 //    else
 //    { // XOR mode
@@ -275,13 +273,14 @@ void LCD::copy_to_lcd(void)
       //  wr_cmd8(0x10|(col_offset>>4));      // set column hi  nibble
         wr_cmd16(setcolcmd);
         wr_cmd8(0xB0|(page+page_offset));      // set page
-        wr_data16buf(buffer16+i, LCDSIZE_X>>1);   // send whole page pixels
+        wr_grambuf(buffer16+i, LCDSIZE_X>>1);   // send whole page pixels
         i+=LCDSIZE_X>>1;
     }
 }
 void LCD::cls(void)
 {
-    memset(buffer,0x00,LCDSIZE_X*LCDPAGES);  // clear display buffer
+    unsigned short tmp = _background^0xFFFF;
+    memset(buffer,tmp,LCDSIZE_X*LCDPAGES);  // clear display buffer
     unsigned short setcolcmd = 0x0010 | ((col_offset&0xF)<<8) | (col_offset>>4);
     for(int page=0; page<LCDPAGES; page++)
     {
@@ -289,6 +288,6 @@ void LCD::cls(void)
      //   wr_cmd8(0x10|(col_offset>>4));      // set column hi  nibble
         wr_cmd16(setcolcmd);
         wr_cmd8(0xB0|(page+page_offset));      // set page
-        wr_data16(0, LCDSIZE_X>>1);   // send whole page pixels =0
+        wr_gram(tmp, LCDSIZE_X>>1);   // send whole page pixels =0
     }
 }

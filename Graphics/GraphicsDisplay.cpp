@@ -1,5 +1,14 @@
- 
- /* mbed library for 240*320 pixel display TFT based on ILI9341 LCD Controller
+/* mbed UniGraphic library - Graphics class
+ * Copyright (c) 2015 Giuliano Dianda
+ * Released under the MIT License: http://mbed.org/license/mit
+ *
+ * Derived work of:
+ *
+ * mbed GraphicsDisplay Display Library Base Class
+ * Copyright (c) 2007-2009 sford
+ * Released under the MIT License: http://mbed.org/license/mit
+ *
+ * mbed library for 240*320 pixel display TFT based on ILI9341 LCD Controller
  * Copyright (c) 2013 Peter Drescher - DC2PD
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -11,10 +20,7 @@
  * THE SOFTWARE.
  */
  
- /* mbed GraphicsDisplay Display Library Base Class
- * Copyright (c) 2007-2009 sford
- * Released under the MIT License: http://mbed.org/license/mit
- */
+
  
 #include "GraphicsDisplay.h"
 #define SWAP(a, b)  { a ^= b; b ^= a; a ^= b; }

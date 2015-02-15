@@ -161,22 +161,6 @@ protected:
     */   
     void wr_data8(unsigned char data);
     
-    /** Send same 8bit data to display controller multiple times
-    *
-    * @param data: byte to send
-    * @param count: how many
-    *
-    */   
-    void wr_data8(unsigned char data, unsigned int count);
-    
-    /** Send array of data bytes to display controller
-    *
-    * @param data: unsigned char data array
-    * @param lenght: lenght of array
-    *
-    */   
-    void wr_data8buf(unsigned char* data, unsigned int lenght);
-    
     /** Send 16bit command to display controller 
     *
     * @param cmd: halfword to send  
@@ -184,28 +168,21 @@ protected:
     */   
     void wr_cmd16(unsigned short cmd);
     
-    /** Send 16bit data to display controller 
-    *
-    * @param data: halfword to send   
-    *
-    */   
-    //void wr_data16(unsigned short data);
-    
-    /** Send same 16bit data to display controller multiple times
+    /** Send same 16bit pixeldata to display controller multiple times
     *
     * @param data: halfword to send
     * @param count: how many
     *
     */   
-    void wr_data16(unsigned short data, unsigned int count);
+    virtual void wr_gram(unsigned short data, unsigned int count);
     
-    /** Send array of data shorts to display controller
+    /** Send array of pixeldata shorts to display controller
     *
-    * @param data: unsigned short data array
+    * @param data: unsigned short pixeldata array
     * @param lenght: lenght (in shorts)
     *
     */   
-    void wr_data16buf(unsigned short* data, unsigned int lenght);
+    virtual void wr_grambuf(unsigned short* data, unsigned int lenght);
     
     /** HW reset sequence (without display init commands)   
     */

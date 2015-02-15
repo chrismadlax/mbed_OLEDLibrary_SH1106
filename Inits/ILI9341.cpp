@@ -1,3 +1,8 @@
+ /* mbed UniGraphic library - Device specific class
+ * Copyright (c) 2015 Giuliano Dianda
+ * Released under the MIT License: http://mbed.org/license/mit
+ */
+ 
 #include "Protocols.h"
 #include "ILI9341.h"
 
@@ -16,8 +21,9 @@ ILI9341::ILI9341(proto_t displayproto, PortName port, PinName CS, PinName reset,
     hw_reset();
     BusEnable(true);
     init();
-    cls();
+    mipistd=false;
     set_orientation(0);
+    cls();
     locate(0,0); 
 }
 ILI9341::ILI9341(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const char *name)
@@ -26,8 +32,9 @@ ILI9341::ILI9341(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinNa
     hw_reset(); //TFT class forwards to Protocol class
     BusEnable(true); //TFT class forwards to Protocol class
     init(); // per display custom init cmd sequence, implemented here
+    mipistd=false;
+    set_orientation(0); //TFT class does for MIPI standard and some ILIxxx
     cls();
-    set_orientation(1); //TFT class does for MIPI standard and some ILIxxx
     locate(0,0); 
 }
 // reset and init the lcd controller
@@ -78,11 +85,7 @@ void ILI9341::init()
      wr_cmd8(0xC7);                     // VCOM_CONTROL_2
      wr_data8(0x86);  // AN A7, was BE
      
-     wr_cmd8(0x36);                     // MEMORY_ACCESS_CONTROL
-     wr_data8(0x48);
      
-     wr_cmd8(0x3A);                     // COLMOD_PIXEL_FORMAT_SET, not present in AN
-     wr_data8(0x55);                 // 16 bit pixel 
      
      wr_cmd8(0xB1);                     // Frame Rate
      wr_data8(0x00);
@@ -140,13 +143,19 @@ void ILI9341::init()
       
   //   wr_cmd8(0xB7);                       // ENTRY_MODE_SET
   //   wr_data8(0x07);
-         
-     wr_cmd8(0x11);                     // sleep out
+  
+    wr_cmd8(0x36);      // MEMORY_ACCESS_CONTROL (orientation stuff)
+    wr_data8(0x48);
      
+    wr_cmd8(0x3A);      // COLMOD_PIXEL_FORMAT_SET
+    wr_data8(0x55);     // 16 bit pixel 
+
+    wr_cmd8(0x13); // Nomal Displaymode
+    
+     wr_cmd8(0x11);                     // sleep out
      wait_ms(150);
      
      wr_cmd8(0x29);                     // display on
-     
      wait_ms(150);
 
 }

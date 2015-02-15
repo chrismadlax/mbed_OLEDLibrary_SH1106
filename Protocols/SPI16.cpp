@@ -1,3 +1,21 @@
+ /* mbed UniGraphic library - SPI16 protocol class
+ * Copyright (c) 2015 Giuliano Dianda
+ * Released under the MIT License: http://mbed.org/license/mit
+ *
+ * Derived work of:
+ *
+ * mbed library for 240*320 pixel display TFT based on ILI9341 LCD Controller
+ * Copyright (c) 2013 Peter Drescher - DC2PD
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+ 
 #include "SPI16.h"
 //#define USE_CS
 
@@ -39,41 +57,6 @@ void SPI16::wr_data8(unsigned char data)
     _CS = 1;
 #endif
 }
-void SPI16::wr_data8(unsigned char data, unsigned int count)
-{
-#ifdef USE_CS
-    _CS = 0;
-#endif
-    _spi.format(8,0);
-    _DC.write(1); // 1=data
-    while(count)
-    {
-        _spi.write(data);    // write 8bit
-        count--;
-    }
-    _spi.format(16,0);
-#ifdef USE_CS
-    _CS = 1;
-#endif
-}
-void SPI16::wr_data8buf(unsigned char* data, unsigned int lenght)
-{
-#ifdef USE_CS
-    _CS = 0;
-#endif
-    _spi.format(8,0);
-    _DC.write(1); // 1=data
-    while(lenght)
-    {
-        _spi.write(*data++);    // write 8bit
-       // data++;
-        lenght--;
-    }
-    _spi.format(16,0);
-#ifdef USE_CS
-    _CS = 1;
-#endif
-}
 void SPI16::wr_cmd16(unsigned short cmd)
 {   
 #ifdef USE_CS
@@ -96,7 +79,18 @@ void SPI16::wr_data16(unsigned short data)
     _CS = 1;
 #endif
 }
-void SPI16::wr_data16(unsigned short data, unsigned int count)
+void SPI16::wr_gram(unsigned short data)
+{
+#ifdef USE_CS
+    _CS = 0;
+#endif
+    _DC.write(1); // 1=data
+    _spi.write(data);    // write 16bit
+#ifdef USE_CS
+    _CS = 1;
+#endif
+}
+void SPI16::wr_gram(unsigned short data, unsigned int count)
 {
 #ifdef USE_CS
     _CS = 0;
@@ -111,7 +105,7 @@ void SPI16::wr_data16(unsigned short data, unsigned int count)
     _CS = 1;
 #endif
 }
-void SPI16::wr_data16buf(unsigned short* data, unsigned int lenght)
+void SPI16::wr_grambuf(unsigned short* data, unsigned int lenght)
 {
 #ifdef USE_CS
     _CS = 0;

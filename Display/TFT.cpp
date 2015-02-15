@@ -1,4 +1,10 @@
-/* mbed library for 240*320 pixel display TFT based on ILI9341 LCD Controller
+ /* mbed UniGraphic library - universal TFT driver class
+ * Copyright (c) 2015 Giuliano Dianda
+ * Released under the MIT License: http://mbed.org/license/mit
+ *
+ * Derived work of:
+ *
+ * mbed library for 240*320 pixel display TFT based on ILI9341 LCD Controller
  * Copyright (c) 2013 Peter Drescher - DC2PD
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -20,12 +26,14 @@ TFT::TFT(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName
     : GraphicsDisplay(name), LCDSIZE_X(lcdsize_x), LCDSIZE_Y(lcdsize_y)
 {
     if(displayproto==PAR_8) proto = new PAR8(port, CS, reset, DC, WR, RD);
+    else if(displayproto==PAR_16) proto = new PAR16(port, CS, reset, DC, WR, RD);
     useNOP=false;
+    scrollbugfix=0;
+    mipistd=false;
     set_orientation(0);
     foreground(White);
     background(Black);
     set_auto_up(false); //we don't have framebuffer
-    mipistd=false;
   //  cls();
   //  locate(0,0);
 }
@@ -42,12 +50,12 @@ TFT::TFT(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk,
         proto = new SPI16(Hz, mosi, miso, sclk, CS, reset, DC);
         useNOP=true;
     }
-  //  cls();
+    scrollbugfix=0;
+    mipistd=false;
     set_orientation(0);
     foreground(White);
     background(Black);
     set_auto_up(false);
-    mipistd=false;
   //  locate(0,0);
 }
 void TFT::wr_cmd8(unsigned char cmd)
@@ -59,29 +67,34 @@ void TFT::wr_data8(unsigned char data)
     {
         proto->wr_data8(data);
     }
-void TFT::wr_data8(unsigned char data, unsigned int count)
-    {
-        proto->wr_data8(data, count);
-    }
-void TFT::wr_data8buf(unsigned char* data, unsigned int lenght)
-    {
-        proto->wr_data8buf(data, lenght);
-    }
-void TFT::wr_cmd16(unsigned short cmd)
-    {
-        proto->wr_cmd16(cmd);
-    }
 void TFT::wr_data16(unsigned short data)
     {
         proto->wr_data16(data);
     }
-void TFT::wr_data16(unsigned short data, unsigned int count)
+void TFT::wr_gram(unsigned short data)
     {
-        proto->wr_data16(data, count);
+        proto->wr_gram(data);
     }
-void TFT::wr_data16buf(unsigned short* data, unsigned int lenght)
+void TFT::wr_gram(unsigned short data, unsigned int count)
     {
-        proto->wr_data16buf(data, lenght);
+        proto->wr_gram(data, count);
+    }
+void TFT::wr_grambuf(unsigned short* data, unsigned int lenght)
+    {
+        proto->wr_grambuf(data, lenght);
+    }
+//for TFT, just send data, position counters are in hw
+void TFT::window_pushpixel(unsigned short color)
+{
+    proto->wr_gram(color);
+}
+void TFT::window_pushpixel(unsigned short color, unsigned int count)
+{
+    proto->wr_gram(color, count);
+}
+void TFT::window_pushpixelbuf(unsigned short* color, unsigned int lenght)
+    {
+        proto->wr_grambuf(color, lenght);
     }
 void TFT::hw_reset()
     {
@@ -139,29 +152,16 @@ void TFT::window(int x, int y, int w, int h)
     
     wr_cmd8(0x2C);  //write mem, just send pixels color next
 }
-//for TFT, just send data, position counters are in hw
-void TFT::window_pushpixel(unsigned short color)
-{
-    proto->wr_data16(color);
-}
-void TFT::window_pushpixel(unsigned short color, unsigned int count)
-{
-    proto->wr_data16(color, count);
-}
-void TFT::window_pushpixelbuf(unsigned short* color, unsigned int lenght)
-    {
-        proto->wr_data16buf(color, lenght);
-    }
 void TFT::pixel(int x, int y, unsigned short color)
 {
     window(x,y,1,1);
-    wr_data16(color);   // 2C expects 16bit parameters
-    //proto->wr_data16(color);
+  //  proto->wr_gram(color);   // 2C expects 16bit parameters
+    wr_gram(color);
 }
 void TFT::cls (void)
 {
     WindowMax();
-  //  wr_data16(_background,pixels);
-    wr_data16(0,LCDSIZE_X*LCDSIZE_Y);
-    //proto->wr_data16(_background,pixels);
+  //  proto->wr_gram(_background,LCDSIZE_X*LCDSIZE_Y);
+  //  proto->wr_gram(0,LCDSIZE_X*LCDSIZE_Y);
+    wr_gram(_background,LCDSIZE_X*LCDSIZE_Y);
 }
