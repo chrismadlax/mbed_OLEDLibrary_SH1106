@@ -5,6 +5,8 @@
 #include "Protocols.h"
 //#include "GraphicsDisplay.h"
 
+/** SPI 8bit interface
+*/
 class SPI8 : public Protocols
 {
  public:

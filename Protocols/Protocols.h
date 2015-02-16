@@ -25,7 +25,7 @@ enum proto_t {
 };
 
 
-/** Abstract class for spi and parallel protocols
+/** Abstract interface class for spi and parallel protocols
 */
 class Protocols
 {

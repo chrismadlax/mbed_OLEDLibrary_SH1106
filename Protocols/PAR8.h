@@ -5,6 +5,8 @@
 #include "Protocols.h"
 //#include "GraphicsDisplay.h"
 
+/** Parallel 8bit interface
+*/
 class PAR8 : public Protocols
 {
  public:

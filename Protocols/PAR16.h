@@ -5,6 +5,8 @@
 #include "Protocols.h"
 //#include "GraphicsDisplay.h"
 
+/** Parallel 16bit interface
+*/
 class PAR16 : public Protocols
 {
  public:

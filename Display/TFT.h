@@ -9,11 +9,7 @@
 #include "Protocols.h"
 
 
-
-
-
-
-/** A common base class for monochrome Display
+/** A common base class for color TFT Display
 */
 class TFT : public GraphicsDisplay
 {
