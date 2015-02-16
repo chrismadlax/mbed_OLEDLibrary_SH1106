@@ -150,7 +150,73 @@ void PAR16::wr_grambuf(unsigned short* data, unsigned int lenght)
     _CS = 1;
 #endif
 }
-
+unsigned int PAR16::rd_data32_wdummy()
+{
+#ifdef USE_CS
+    _CS = 0;
+#endif
+    unsigned int r=0;
+    _DC = 1; // 1=data
+   _port.input();
+   
+    _RD = 0;
+    _port.read(); //dummy read
+    _RD = 1;
+    
+    _RD = 0;
+//    _RD = 0; // add wait
+    r |= (_port.read()&0xFF);
+    r <<= 8;
+    _RD = 1;
+    
+    _RD = 0;
+//    _RD = 0; // add wait
+    r |= (_port.read()&0xFF);
+    r <<= 8;
+    _RD = 1;
+    
+    _RD = 0;
+//    _RD = 0; // add wait
+    r |= (_port.read()&0xFF);
+    r <<= 8;
+    _RD = 1;
+    
+    _RD = 0;
+//    _RD = 0; // add wait
+    r |= (_port.read()&0xFF);
+    _RD = 1;
+    
+    _CS = 1; // force CS HIG to interupt the cmd in case was not supported
+#ifndef USE_CS //if CS is not used, force fixed LOW again
+    _CS = 0;
+#endif
+    _port.output();
+    return r;
+}
+unsigned short PAR16::rd_gram()
+{
+#ifdef USE_CS
+    _CS = 0;
+#endif
+    unsigned short r=0;
+    _DC = 1; // 1=data
+   _port.input();
+   
+    _RD = 0;
+    _port.read(); //dummy read
+    _RD = 1;
+    
+    _RD = 0;
+//    _RD = 0; // add wait
+    r |= _port.read();
+    _RD = 1;
+    
+#ifdef USE_CS
+    _CS = 1;
+#endif
+    _port.output();
+    return r;
+}
 void PAR16::hw_reset()
 {
     wait_ms(15);

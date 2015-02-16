@@ -135,6 +135,52 @@ void SPI8::wr_grambuf(unsigned short* data, unsigned int lenght)
     _CS = 1;
 #endif
 }
+unsigned int SPI8::rd_data32_wdummy()
+{
+#ifdef USE_CS
+    _CS = 0;
+#endif
+    unsigned int r=0;
+    _DC.write(1); // 1=data
+   
+    r |= _spi.write(0); // we get only 7bit valid, first bit was the dummy cycle
+    r <<= 8;
+    r |= _spi.write(0);
+    r <<= 8;
+    r |= _spi.write(0);
+    r <<= 8;
+    r |= _spi.write(0);
+    r <<= 1; // 32bits are aligned, now collecting bit_0
+    r |= (_spi.write(0) >> 7);
+    // we clocked 7 more bit so ILI waiting for 8th, we need to reset spi bus
+    _CS = 1; // force CS HIG to interupt the cmd
+#ifndef USE_CS //if CS is not used, force fixed LOW again
+    _CS = 0;
+#endif
+    return r;
+}
+unsigned short SPI8::rd_gram()
+{
+#ifdef USE_CS
+    _CS = 0;
+#endif
+    unsigned int r=0;
+    _DC.write(1); // 1=data
+    _spi.write(0); // whole first byte is dummy
+    r |= _spi.write(0);
+    r <<= 8;
+    r |= _spi.write(0);
+    r <<= 8;
+    r |= _spi.write(0);  
+    _CS = 1; // force CS HIG to interupt the "read state"
+#ifndef USE_CS //if CS is not used, force fixed LOW again
+    _CS = 0;
+#endif
+    // gram is 18bit/pixel, if you set 16bit/pixel (cmd 3A), during writing the 16bits are expanded to 18bit
+    // during reading, you read the raw 18bit gram
+    r = RGB18to16((r&0xFC0000)>>16, (r&0xFC00)>>8, r&0xFC);// 18bit pixel, rrrrrr00_gggggg00_bbbbbb00, converted to 16bit
+    return (unsigned short)r;
+}
 void SPI8::hw_reset()
 {
     wait_ms(15);

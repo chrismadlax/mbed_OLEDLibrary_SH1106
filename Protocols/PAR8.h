@@ -73,6 +73,19 @@ protected:
     */   
     virtual void wr_grambuf(unsigned short* data, unsigned int lenght);
     
+    /** Read 4x8bit data from display controller (with dummy cycle)
+    *
+    * @returns data as uint
+    *
+    */ 
+    virtual unsigned int rd_data32_wdummy();
+    
+    /** Read 16bit pixeldata from display controller (with dummy cycle)
+    *
+    * @returns 16bit color
+    */ 
+    virtual unsigned short rd_gram();
+    
     /** HW reset sequence (without display init commands)   
     */
     virtual void hw_reset();

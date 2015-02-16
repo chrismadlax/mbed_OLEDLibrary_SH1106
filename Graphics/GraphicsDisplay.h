@@ -17,8 +17,7 @@
 #include "TextDisplay.h"
 #include "Terminal6x8.h"
 
-#define RGB(r,g,b)  (((r&0xF8)<<8)|((g&0xFC)<<3)|((b&0xF8)>>3)) //5 red | 6 green | 5 blue
-#define BGR2RGB(color) (((color&0x1F)<<11) | (color&0x7E0) | ((color&0xF800)>>11))
+
 
 /* some RGB color definitions                                                 */
 #define Black           0x0000      /*   0,   0,   0 */

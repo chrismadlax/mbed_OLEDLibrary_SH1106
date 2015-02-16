@@ -83,6 +83,14 @@ void TFT::wr_grambuf(unsigned short* data, unsigned int lenght)
     {
         proto->wr_grambuf(data, lenght);
     }
+unsigned int TFT::rd_data32_wdummy()
+    {
+        return proto->rd_data32_wdummy();
+    }
+unsigned short TFT::rd_gram()
+    {
+        return (proto->rd_gram());
+    }
 //for TFT, just send data, position counters are in hw
 void TFT::window_pushpixel(unsigned short color)
 {
@@ -141,7 +149,6 @@ void TFT::window(int x, int y, int w, int h)
 {
     //ili9486 does not like truncated 2A/2B cmds, at least in par mode
     //setting only start column/page would speedup, but needs a windowmax() before, maybe implement later
-    //fixme for PAR_16: // cmd 2A/2B expects 8bit parameters
     wr_cmd8(0x2A);
     wr_data16(x);   //start column
     wr_data16(x+w-1);//end column
@@ -152,11 +159,32 @@ void TFT::window(int x, int y, int w, int h)
     
     wr_cmd8(0x2C);  //write mem, just send pixels color next
 }
+void TFT::window4read(int x, int y, int w, int h)
+{
+    wr_cmd8(0x2A);
+    wr_data16(x);   //start column
+    wr_data16(x+w-1);//end column
+
+    wr_cmd8(0x2B);
+    wr_data16(y);   //start page
+    wr_data16(y+h-1);//end page
+    
+    wr_cmd8(0x2E);  //read mem, just pixelread next
+}
 void TFT::pixel(int x, int y, unsigned short color)
 {
     window(x,y,1,1);
   //  proto->wr_gram(color);   // 2C expects 16bit parameters
     wr_gram(color);
+}
+unsigned short TFT::pixelread(int x, int y)
+{
+    unsigned short color;
+    window4read(x,y,1,1);
+  //  proto->wr_gram(color);   // 2C expects 16bit parameters
+    color = rd_gram();
+    if(mipistd) color = BGR2RGB(color); // in case, convert BGR to RGB (should depend on cmd36 bit3) but maybe is device specific
+    return color;
 }
 void TFT::cls (void)
 {

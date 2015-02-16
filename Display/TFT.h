@@ -50,6 +50,21 @@ public:
     * @param h is the window height in pixels.
     */
     virtual void window(int x, int y, int w, int h);
+    
+    /** Read pixel color at current location
+    * @param x is the horizontal offset to this pixel.
+    * @param y is the vertical offset to this pixel.
+    * @param color defines the color for the pixel.
+    */
+    virtual unsigned short pixelread(int x, int y);
+    
+    /** Set the window from which gram is read from. Autoincrements row/column
+    * @param x is the left edge in pixels.
+    * @param y is the top edge in pixels.
+    * @param w is the window width in pixels.
+    * @param h is the window height in pixels.
+    */
+    virtual void window4read(int x, int y, int w, int h);
 
     /** Push a single pixel into the window and increment position.
     * You must first call window() then push pixels.
@@ -153,6 +168,19 @@ protected:
     *
     */   
     virtual void wr_grambuf(unsigned short* data, unsigned int lenght);
+    
+    /** Read 4x8bit data from display controller (with dummy cycle)
+    *
+    * @returns data as uint
+    *
+    */ 
+    virtual unsigned int rd_data32_wdummy();
+    
+    /** Read 16bit pixeldata from display controller (with dummy cycle)
+    *
+    * @returns 16bit color
+    */ 
+    virtual unsigned short rd_gram();
     
     /** HW reset sequence (without display init commands)   
     */

@@ -10,6 +10,9 @@
 
 #include "mbed.h"
 
+#define RGB18to16(r,g,b)  (((r&0xF8)<<8)|((g&0xFC)<<3)|((b&0xF8)>>3)) //5 red | 6 green | 5 blue
+#define BGR2RGB(color) (((color&0x1F)<<11) | (color&0x7E0) | ((color&0xF800)>>11))
+
 //#define USE_CS
 
 /** Protocol types
@@ -78,6 +81,19 @@ class Protocols
     *
     */   
     virtual void wr_grambuf(unsigned short* data, unsigned int lenght) = 0;
+    
+    /** Read 4x8bit data from display controller (with dummy cycle)
+    *
+    * @returns data as uint
+    *
+    */ 
+    virtual unsigned int rd_data32_wdummy() = 0;
+    
+    /** Read 16bit pixeldata from display controller (with dummy cycle)
+    *
+    * @returns 16bit color
+    */ 
+    virtual unsigned short rd_gram() = 0;
     
     /** HW reset sequence (without display init commands)   
     */
