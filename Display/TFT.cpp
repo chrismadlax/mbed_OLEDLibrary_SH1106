@@ -207,14 +207,14 @@ void TFT::setscrollarea (int startY, int areasize) // ie 0,480 for whole screen
     wr_cmd8(0x33);
     wr_data16(topfixedareasize); //num lines of top fixed area
     wr_data16(scrollareasize+scrollbugfix); //num lines of vertical scroll area, +1 for ILI9481 fix
-    if((areasize+startY)>height()) bfa=0;
-    else bfa = height()-(areasize+startY);
+    if((areasize+startY)>screensize_Y) bfa=0;
+    else bfa = screensize_Y-(areasize+startY);
     wr_data16(bfa); //num lines of bottom fixed area
 }
 void TFT::scroll (int lines) // ie 1= scrollup 1, 479= scrolldown 1
 {
     wr_cmd8(0x37);
-    wr_data16((topfixedareasize+lines)%scrollareasize); //num lines of top fixed area
+    wr_data16(topfixedareasize+(lines%scrollareasize)); // select the (absolute)line which will be displayed as first scrollarea line 
 }
 void TFT::scrollreset()
 {

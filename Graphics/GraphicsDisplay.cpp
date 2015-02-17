@@ -25,7 +25,7 @@
 #include "GraphicsDisplay.h"
 #define SWAP(a, b)  { a ^= b; b ^= a; a ^= b; }
 GraphicsDisplay::GraphicsDisplay(const char *name):TextDisplay(name) {
-    set_font((unsigned char*)Terminal6x8);
+    set_font((unsigned char*)Terminal6x8,32,127,true);
  //   foreground(0xFFFF);
  //   background(0x0000);
     char_x = 0;
@@ -299,8 +299,12 @@ void GraphicsDisplay::character(int x, int y, int c)
             }
         }
     }
-    if(fontprop) char_x += w;
-    else char_x += fonthor;
+    if(fontprop)
+    {
+        if((w+1)<fonthor) char_x += w+1; // put at least 1 blank after variable-width characters, except characters that occupy whole fonthor space like "_"
+        else char_x += fonthor;
+    }
+    else char_x += fonthor; // fixed width
 }
 void GraphicsDisplay::Bitmap_BW(Bitmap_s bm, int x, int y)
 {

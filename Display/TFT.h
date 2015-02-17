@@ -47,10 +47,10 @@ public:
     */
     virtual void window(int x, int y, int w, int h);
     
-    /** Read pixel color at current location
+    /** Read pixel color at location
     * @param x is the horizontal offset to this pixel.
     * @param y is the vertical offset to this pixel.
-    * @param color defines the color for the pixel.
+    * @returns 16bit color.
     */
     virtual unsigned short pixelread(int x, int y);
     
