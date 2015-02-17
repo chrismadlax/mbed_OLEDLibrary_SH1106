@@ -10,12 +10,12 @@
 /////////////////////////////////////////////////////////////////////////
 #define IC_X_SEGS    240 // UC1608 SEG has range 0-239 (239-0 if MX=1), check your datasheet, important for the orientation
 #define IC_Y_COMS    128  // UC1608 COM has range 0-127 (127-0 if MY=1), check your datasheet, important for the orientation
-#define LCDSIZE_X       240 // display X pixels
-#define LCDSIZE_Y       120  // display Y pixels, UC1608 is advertised as 240x128 but display size could be smaller
+//#define LCDSIZE_X       240 // display X pixels
+//#define LCDSIZE_Y       120  // display Y pixels, UC1608 is advertised as 240x128 but display size could be smaller
 
 
 
-UC1608::UC1608(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const char *name)
+UC1608::UC1608(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const char *name , unsigned int LCDSIZE_X, unsigned  int LCDSIZE_Y)
     : LCD(displayproto, port, CS, reset, DC, WR, RD, LCDSIZE_X, LCDSIZE_Y, IC_X_SEGS, IC_Y_COMS, name)
 {
     hw_reset();
@@ -25,7 +25,7 @@ UC1608::UC1608(proto_t displayproto, PortName port, PinName CS, PinName reset, P
     set_orientation(1);
     locate(0,0);
 }
-UC1608::UC1608(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const char *name)
+UC1608::UC1608(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const char *name, unsigned int LCDSIZE_X, unsigned  int LCDSIZE_Y)
     : LCD(displayproto, Hz, mosi, miso, sclk, CS, reset, DC, LCDSIZE_X, LCDSIZE_Y, IC_X_SEGS, IC_Y_COMS, name)
 {
     hw_reset();

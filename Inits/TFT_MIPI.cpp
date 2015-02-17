@@ -9,12 +9,13 @@
 // display settings ///////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////
 
-#define LCDSIZE_X       320 // display X pixels, TFTs are usually portrait view
-#define LCDSIZE_Y       480  // display Y pixels
+// put in constructor
+//#define LCDSIZE_X       320 // display X pixels, TFTs are usually portrait view
+//#define LCDSIZE_Y       480  // display Y pixels
 
 
 
-TFT_MIPI::TFT_MIPI(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const char *name)
+TFT_MIPI::TFT_MIPI(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const char *name , unsigned int LCDSIZE_X, unsigned  int LCDSIZE_Y)
     : TFT(displayproto, port, CS, reset, DC, WR, RD, LCDSIZE_X, LCDSIZE_Y, name)
 {
     hw_reset();
@@ -26,7 +27,7 @@ TFT_MIPI::TFT_MIPI(proto_t displayproto, PortName port, PinName CS, PinName rese
     cls();
     locate(0,0); 
 }
-TFT_MIPI::TFT_MIPI(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const char *name)
+TFT_MIPI::TFT_MIPI(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const char *name , unsigned int LCDSIZE_X , unsigned  int LCDSIZE_Y )
     : TFT(displayproto, Hz, mosi, miso, sclk, CS, reset, DC, LCDSIZE_X, LCDSIZE_Y, name)
 {
     hw_reset(); //TFT class forwards to Protocol class

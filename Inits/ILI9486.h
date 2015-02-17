@@ -23,8 +23,10 @@ class ILI9486 : public TFT
     * @param WR pin connected to SDI of display
     * @param RD pin connected to RS of display
     * @param name The name used by the parent class to access the interface
+    * @param LCDSIZE_X x size in pixel - optional
+    * @param LCDSIZE_Y y size in pixel - optional
     */ 
-    ILI9486(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const char* name);
+    ILI9486(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const char* name, unsigned int LCDSIZE_X = 320, unsigned  int LCDSIZE_Y = 480);
   
     /** Create an SPI display interface
     * @param displayproto only supports SPI_8
@@ -36,8 +38,10 @@ class ILI9486 : public TFT
     * @param reset pin connected to RESET of display
     * @param DC pin connected to data/command of display
     * @param name The name used by the parent class to access the interface
+    * @param LCDSIZE_X x size in pixel - optional
+    * @param LCDSIZE_Y y size in pixel - optional
     */ 
-    ILI9486(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const char* name);
+    ILI9486(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const char* name, unsigned int LCDSIZE_X = 320, unsigned  int LCDSIZE_Y= 480);
   
 
   

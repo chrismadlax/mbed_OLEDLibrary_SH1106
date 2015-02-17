@@ -12,12 +12,13 @@
 /////////////////////////////////////////////////////////////////////////
 #define IC_X_SEGS    256 // IST3020 SEG has range 0-255 (255-0 if ADC=1), check your datasheet, important for the orientation
 #define IC_Y_COMS    64  // IST3020 COM has range 0-63 (63-0 if SHL=1), check your datasheet, important for the orientation
-#define LCDSIZE_X       192 // display X pixels, IST3020 is advertised as 224x65 but display size could be smaller
-#define LCDSIZE_Y       64  // display Y pixels, the 65th is for accessing "icons"
+// put in constructor
+//#define LCDSIZE_X       192 // display X pixels, IST3020 is advertised as 224x65 but display size could be smaller
+//#define LCDSIZE_Y       64  // display Y pixels, the 65th is for accessing "icons"
 
 
 
-IST3020::IST3020(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const char *name)
+IST3020::IST3020(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const char *name, unsigned int LCDSIZE_X, unsigned  int LCDSIZE_Y)
     : LCD(displayproto, port, CS, reset, DC, WR, RD, LCDSIZE_X, LCDSIZE_Y, IC_X_SEGS, IC_Y_COMS, name)
 {
     hw_reset();
@@ -27,7 +28,7 @@ IST3020::IST3020(proto_t displayproto, PortName port, PinName CS, PinName reset,
     set_orientation(1);
     locate(0,0);
 }
-IST3020::IST3020(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const char *name)
+IST3020::IST3020(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const char *name, unsigned int LCDSIZE_X, unsigned  int LCDSIZE_Y)
     : LCD(displayproto, Hz, mosi, miso, sclk, CS, reset, DC, LCDSIZE_X, LCDSIZE_Y, IC_X_SEGS, IC_Y_COMS, name)
 {
     hw_reset();
