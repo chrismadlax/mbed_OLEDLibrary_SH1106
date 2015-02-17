@@ -53,9 +53,6 @@ public:
     */
     virtual void pixel(int x, int y, unsigned short color);
 
-    
-        
-    
     /** Set the window, which controls where items are written to the screen.
     * When something hits the window width, it wraps back to the left side
     * and down a row. If the initial write is outside the window, it will
@@ -66,6 +63,8 @@ public:
     * @param h is the window height in pixels.
     */
     virtual void window(int x, int y, int w, int h);
+    
+    
 
     /** Push a single pixel into the window and increment position.
     * You must first call window() then push pixels in loop.
@@ -102,7 +101,7 @@ public:
       */
     int get_contrast(void);
 
-    /** invert the screen
+    /** display inverted colors
       *
       * @param o = 0 normal, 1 invert
       */
@@ -113,10 +112,6 @@ public:
     * We override it to speedup
     */
     virtual void cls();
-    
-    
-    
-    
     
     /** Set the orientation of the screen
     *  x,y: 0,0 is always top left 
@@ -134,6 +129,29 @@ public:
     * @param enable 0/1   
     */
     virtual void BusEnable(bool enable);
+    
+    /** get display X size in pixels (native, orientation independent)
+    * @returns X size in pixels
+    */
+    int sizeX();
+
+    /** get display X size in pixels (native, orientation independent)
+    * @returns screen height in pixels.
+    */
+    int sizeY();
+    
+////////////////////////////////////////////////////////////////////////////////    
+    // not implemented yet
+//////////////////////////////////////////////////////////////////
+    virtual unsigned short pixelread(int x, int y){return 0;};
+    virtual void window4read(int x, int y, int w, int h){};
+    void setscrollarea (int startY, int areasize){};
+    void scroll (int lines){};
+    void scrollreset(){};
+    
+    unsigned int tftID;
+    
+    
     
     
 protected:
@@ -196,12 +214,12 @@ private:
     Protocols* proto;
     unsigned char *buffer;
     unsigned short *buffer16;
-    const int LCDSIZE_X;
-    const int LCDSIZE_Y;
-    const int LCDPAGES;
-    const int IC_X_SEGS;
-    const int IC_Y_COMS;
-    const int IC_PAGES;
+    const int screensize_X;
+    const int screensize_Y;
+    const int _LCDPAGES;
+    const int _IC_X_SEGS;
+    const int _IC_Y_COMS;
+    const int _IC_PAGES;
     
     int page_offset;
     int col_offset;

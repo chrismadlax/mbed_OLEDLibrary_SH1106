@@ -150,11 +150,36 @@ void PAR16::wr_grambuf(unsigned short* data, unsigned int lenght)
     _CS = 1;
 #endif
 }
-unsigned int PAR16::rd_data32_wdummy()
+unsigned short PAR16::rd_gram()
 {
 #ifdef USE_CS
     _CS = 0;
 #endif
+    unsigned short r=0;
+    _DC = 1; // 1=data
+   _port.input();
+   
+    _RD = 0;
+    _port.read(); //dummy read
+    _RD = 1;
+    
+    _RD = 0;
+//    _RD = 0; // add wait
+    r |= _port.read();
+    _RD = 1;
+    
+#ifdef USE_CS
+    _CS = 1;
+#endif
+    _port.output();
+    return r;
+}
+unsigned int PAR16::rd_reg_data32(unsigned char reg)
+{
+#ifdef USE_CS
+    _CS = 0;
+#endif
+    wr_cmd8(reg);
     unsigned int r=0;
     _DC = 1; // 1=data
    _port.input();
@@ -193,29 +218,10 @@ unsigned int PAR16::rd_data32_wdummy()
     _port.output();
     return r;
 }
-unsigned short PAR16::rd_gram()
+// in Par mode EXTC regs (0xB0-0xFF) can be directly read
+unsigned int PAR16::rd_extcreg_data32(unsigned char reg, unsigned char SPIreadenablecmd)
 {
-#ifdef USE_CS
-    _CS = 0;
-#endif
-    unsigned short r=0;
-    _DC = 1; // 1=data
-   _port.input();
-   
-    _RD = 0;
-    _port.read(); //dummy read
-    _RD = 1;
-    
-    _RD = 0;
-//    _RD = 0; // add wait
-    r |= _port.read();
-    _RD = 1;
-    
-#ifdef USE_CS
-    _CS = 1;
-#endif
-    _port.output();
-    return r;
+    return rd_reg_data32(reg);
 }
 void PAR16::hw_reset()
 {

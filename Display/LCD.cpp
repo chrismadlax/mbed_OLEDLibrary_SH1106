@@ -21,40 +21,29 @@
 #include "LCD.h"
 
 //#include "mbed_debug.h"
-//#define LCDPAGES        (LCDSIZE_Y>>3) // 8raws per page
-//#define IC_PAGES        (IC_Y_COMS>>3) // max pages in IC ddram, 8raws per page
-#define SWAP(a, b)  { a ^= b; b ^= a; a ^= b; }
-//#define USEFRAMEBUFFER
 
-//#define FRAMEBUFSIZE    (LCDSIZE_X*LCDPAGES)
+#define SWAP(a, b)  { a ^= b; b ^= a; a ^= b; }
 
 
 LCD::LCD(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const int lcdsize_x, const int lcdsize_y, const int ic_x_segs, const int ic_y_coms, const char *name)
-    : /*PAR8(port, CS, reset, DC, WR, RD),*/ GraphicsDisplay(name), LCDSIZE_X(lcdsize_x), LCDSIZE_Y(lcdsize_y), LCDPAGES(lcdsize_y>>3), IC_X_SEGS(ic_x_segs), IC_Y_COMS(ic_y_coms), IC_PAGES(ic_y_coms>>3)
+    : GraphicsDisplay(name), screensize_X(lcdsize_x), screensize_Y(lcdsize_y), _LCDPAGES(lcdsize_y>>3), _IC_X_SEGS(ic_x_segs), _IC_Y_COMS(ic_y_coms), _IC_PAGES(ic_y_coms>>3)
 {
- //   LCDPAGES = LCDSIZE_Y>>3;
- //   IC_PAGES = IC_Y_COMS>>3;
-  //  buffer = new unsigned char [LCDSIZE_X*LCDPAGES];
-  //  PAR8 par8proto(port, CS, reset, DC, WR, RD);
     if(displayproto==PAR_8) proto = new PAR8(port, CS, reset, DC, WR, RD);
     useNOP=false;
-    buffer = (unsigned char*) malloc (LCDSIZE_X*LCDPAGES);
+    buffer = (unsigned char*) malloc (screensize_X*_LCDPAGES);
     buffer16 = (unsigned short*)buffer;
     draw_mode = NORMAL;
     set_orientation(1);
     foreground(White);
     background(Black);
     set_auto_up(true);
+    tftID=0;
   //  cls();
   //  locate(0,0);
 }
 LCD::LCD(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const int lcdsize_x, const int lcdsize_y, const int ic_x_segs, const int ic_y_coms, const char *name)
-    : GraphicsDisplay(name), LCDSIZE_X(lcdsize_x), LCDSIZE_Y(lcdsize_y), LCDPAGES(lcdsize_y>>3), IC_X_SEGS(ic_x_segs), IC_Y_COMS(ic_y_coms), IC_PAGES(ic_y_coms>>3)
+    : GraphicsDisplay(name), screensize_X(lcdsize_x), screensize_Y(lcdsize_y), _LCDPAGES(lcdsize_y>>3), _IC_X_SEGS(ic_x_segs), _IC_Y_COMS(ic_y_coms), _IC_PAGES(ic_y_coms>>3)
 {
- //   LCDPAGES = LCDSIZE_Y>>3;
- //   IC_PAGES = IC_Y_COMS>>3;
-  //  buffer = new unsigned char [LCDSIZE_X*LCDPAGES];
-  //  PAR8 par8proto(port, CS, reset, DC, WR, RD);
     if(displayproto==SPI_8)
     {
         proto = new SPI8(Hz, mosi, miso, sclk, CS, reset, DC);
@@ -65,7 +54,7 @@ LCD::LCD(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk,
         proto = new SPI16(Hz, mosi, miso, sclk, CS, reset, DC);
         useNOP=true;
     }
-    buffer = (unsigned char*) malloc (LCDSIZE_X*LCDPAGES);
+    buffer = (unsigned char*) malloc (screensize_X*_LCDPAGES);
     buffer16 = (unsigned short*)buffer;
     draw_mode = NORMAL;
   //  cls();
@@ -73,6 +62,7 @@ LCD::LCD(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk,
     foreground(White);
     background(Black);
     set_auto_up(true);
+    tftID=0;
   //  locate(0,0);
 
 }
@@ -122,33 +112,33 @@ void LCD::set_orientation(int o)
         case (0):// portrait view -90°
             mirrorXY(Y);
             col_offset = 0;
-            page_offset = IC_PAGES-LCDPAGES;
-            set_width(LCDSIZE_Y);
-            set_height(LCDSIZE_X);
+            page_offset = _IC_PAGES-_LCDPAGES;
+            set_width(screensize_Y);
+            set_height(screensize_X);
         //    portrait = true;
             break;
         case (1): // default, landscape view 0°
             mirrorXY(NONE);
             col_offset = 0;
             page_offset = 0;
-            set_width(LCDSIZE_X);
-            set_height(LCDSIZE_Y);
+            set_width(screensize_X);
+            set_height(screensize_Y);
        //     portrait = false;
             break;
         case (2):// portrait view +90°
             mirrorXY(X);
-            col_offset = IC_X_SEGS-LCDSIZE_X; // some displays have less pixels than IC ram
+            col_offset = _IC_X_SEGS-screensize_X; // some displays have less pixels than IC ram
             page_offset = 0;
-            set_width(LCDSIZE_Y);
-            set_height(LCDSIZE_X);
+            set_width(screensize_Y);
+            set_height(screensize_X);
        //     portrait = true;
             break;
         case (3):// landscape view +180°
             mirrorXY(XY);
-            col_offset = IC_X_SEGS-LCDSIZE_X;
-            page_offset = IC_PAGES-LCDPAGES;
-            set_width(LCDSIZE_X);
-            set_height(LCDSIZE_Y);
+            col_offset = _IC_X_SEGS-screensize_X;
+            page_offset = _IC_PAGES-_LCDPAGES;
+            set_width(screensize_X);
+            set_height(screensize_Y);
        //     portrait = false;
             break;
     }
@@ -251,43 +241,51 @@ void LCD::pixel(int x, int y, unsigned short color)
 {
     if(!(orientation&1)) SWAP(x,y);
     // first check parameter
-    if((x >= LCDSIZE_X) || (y >= LCDSIZE_Y)) return;
+    if((x >= screensize_X) || (y >= screensize_Y)) return;
 
 //    if(draw_mode == NORMAL)
 //    {
-        if(color) buffer[(x + ((y>>3)*LCDSIZE_X))^1] &= ~(1 << (y&7));  // erase pixel
-        else buffer[(x + ((y>>3)*LCDSIZE_X))^1] |= (1 << (y&7));   //Black=0000, set pixel
+        if(color) buffer[(x + ((y>>3)*screensize_X))^1] &= ~(1 << (y&7));  // erase pixel
+        else buffer[(x + ((y>>3)*screensize_X))^1] |= (1 << (y&7));   //Black=0000, set pixel
 //    }
 //    else
 //    { // XOR mode
-//        if(color == 1) buffer[x + ((y>>3) * LCDSIZE_X)] ^= (1 << (y&7));   // xor pixel
+//        if(color == 1) buffer[x + ((y>>3) * screensize_X)] ^= (1 << (y&7));   // xor pixel
 //    }
 }
 void LCD::copy_to_lcd(void)
 {
     unsigned short i=0;
     unsigned short setcolcmd = 0x0010 | ((col_offset&0xF)<<8) | (col_offset>>4);
-    for(int page=0; page<LCDPAGES; page++)
+    for(int page=0; page<_LCDPAGES; page++)
     {
       //  wr_cmd8(col_offset&0xF);              // set column low nibble
       //  wr_cmd8(0x10|(col_offset>>4));      // set column hi  nibble
         wr_cmd16(setcolcmd);
         wr_cmd8(0xB0|(page+page_offset));      // set page
-        wr_grambuf(buffer16+i, LCDSIZE_X>>1);   // send whole page pixels
-        i+=LCDSIZE_X>>1;
+        wr_grambuf(buffer16+i, screensize_X>>1);   // send whole page pixels
+        i+=screensize_X>>1;
     }
 }
 void LCD::cls(void)
 {
     unsigned short tmp = _background^0xFFFF;
-    memset(buffer,tmp,LCDSIZE_X*LCDPAGES);  // clear display buffer
+    memset(buffer,tmp,screensize_X*_LCDPAGES);  // clear display buffer
     unsigned short setcolcmd = 0x0010 | ((col_offset&0xF)<<8) | (col_offset>>4);
-    for(int page=0; page<LCDPAGES; page++)
+    for(int page=0; page<_LCDPAGES; page++)
     {
      //   wr_cmd8((unsigned char)col_offset&0xF);              // set column low nibble
      //   wr_cmd8(0x10|(col_offset>>4));      // set column hi  nibble
         wr_cmd16(setcolcmd);
         wr_cmd8(0xB0|(page+page_offset));      // set page
-        wr_gram(tmp, LCDSIZE_X>>1);   // send whole page pixels =0
+        wr_gram(tmp, screensize_X>>1);   // send whole page pixels =0
     }
+}
+int LCD::sizeX()
+{
+    return screensize_X;
+}
+int LCD::sizeY()
+{
+    return screensize_Y;
 }

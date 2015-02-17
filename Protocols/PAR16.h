@@ -75,18 +75,25 @@ protected:
     */   
     virtual void wr_grambuf(unsigned short* data, unsigned int lenght);
     
-    /** Read 4x8bit data from display controller (with dummy cycle)
-    *
-    * @returns data as uint
-    *
-    */ 
-    virtual unsigned int rd_data32_wdummy();
-    
     /** Read 16bit pixeldata from display controller (with dummy cycle)
     *
     * @returns 16bit color
     */ 
     virtual unsigned short rd_gram();
+    
+    /** Read 4x8bit register data (with dummy cycle)
+    * @param reg the register to read
+    * @returns data as uint
+    * 
+    */ 
+    virtual unsigned int rd_reg_data32(unsigned char reg);
+    
+    /** Read 3x8bit ExtendedCommands register data
+    * @param reg the register to read
+    * @returns data as uint
+    * @note EXTC regs (0xB0 to 0xFF) are read/write registers, for Parallel mode directly accessible in both directions
+    */ 
+    virtual unsigned int rd_extcreg_data32(unsigned char reg, unsigned char SPIreadenablecmd);
     
     /** HW reset sequence (without display init commands)   
     */

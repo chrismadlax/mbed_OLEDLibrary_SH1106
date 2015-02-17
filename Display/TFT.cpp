@@ -23,7 +23,7 @@
 #define SWAP(a, b)  { a ^= b; b ^= a; a ^= b; }
 
 TFT::TFT(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const int lcdsize_x, const int lcdsize_y, const char *name)
-    : GraphicsDisplay(name), LCDSIZE_X(lcdsize_x), LCDSIZE_Y(lcdsize_y)
+    : GraphicsDisplay(name), screensize_X(lcdsize_x), screensize_Y(lcdsize_y)
 {
     if(displayproto==PAR_8) proto = new PAR8(port, CS, reset, DC, WR, RD);
     else if(displayproto==PAR_16) proto = new PAR16(port, CS, reset, DC, WR, RD);
@@ -34,11 +34,13 @@ TFT::TFT(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName
     foreground(White);
     background(Black);
     set_auto_up(false); //we don't have framebuffer
+    topfixedareasize=0;
+    scrollareasize=0;
   //  cls();
   //  locate(0,0);
 }
 TFT::TFT(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const int lcdsize_x, const int lcdsize_y, const char *name)
-    : GraphicsDisplay(name), LCDSIZE_X(lcdsize_x), LCDSIZE_Y(lcdsize_y)
+    : GraphicsDisplay(name), screensize_X(lcdsize_x), screensize_Y(lcdsize_y)
 {
     if(displayproto==SPI_8)
     {
@@ -56,6 +58,8 @@ TFT::TFT(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk,
     foreground(White);
     background(Black);
     set_auto_up(false);
+    topfixedareasize=0;
+    scrollareasize=0;
   //  locate(0,0);
 }
 void TFT::wr_cmd8(unsigned char cmd)
@@ -83,13 +87,17 @@ void TFT::wr_grambuf(unsigned short* data, unsigned int lenght)
     {
         proto->wr_grambuf(data, lenght);
     }
-unsigned int TFT::rd_data32_wdummy()
-    {
-        return proto->rd_data32_wdummy();
-    }
 unsigned short TFT::rd_gram()
     {
-        return (proto->rd_gram());
+        return proto->rd_gram();
+    }
+unsigned int TFT::rd_reg_data32(unsigned char reg)
+    {
+        return proto->rd_reg_data32(reg);
+    }
+unsigned int TFT::rd_extcreg_data32(unsigned char reg, unsigned char SPIreadenablecmd)
+    {
+        return proto->rd_extcreg_data32(reg, SPIreadenablecmd);
     }
 //for TFT, just send data, position counters are in hw
 void TFT::window_pushpixel(unsigned short color)
@@ -121,28 +129,33 @@ void TFT::set_orientation(int o)
         case 0:// default, portrait view 0°
             if(mipistd) wr_data8(0x0A); // this is in real a vertical flip enabled, seems most displays are vertical flipped
             else wr_data8(0x48); //for some other ILIxxxx
-            set_width(LCDSIZE_X);
-            set_height(LCDSIZE_Y);
+            set_width(screensize_X);
+            set_height(screensize_Y);
             break;
         case 1:// landscape view +90°
             if(mipistd) wr_data8(0x28); 
             else wr_data8(0x29);//for some other ILIxxxx
-            set_width(LCDSIZE_Y);
-            set_height(LCDSIZE_X);
+            set_width(screensize_Y);
+            set_height(screensize_X);
             break;
         case 2:// portrait view +180°
             if(mipistd) wr_data8(0x09); 
             else wr_data8(0x99);//for some other ILIxxxx
-            set_width(LCDSIZE_X);
-            set_height(LCDSIZE_Y);
+            set_width(screensize_X);
+            set_height(screensize_Y);
             break;
         case 3:// landscape view -90°
             if(mipistd) wr_data8(0x2B); 
             else wr_data8(0xF8);//for some other ILIxxxx
-            set_width(LCDSIZE_Y);
-            set_height(LCDSIZE_X);
+            set_width(screensize_Y);
+            set_height(screensize_X);
             break;
     }
+}
+void TFT::invert(unsigned char o)
+{
+    if(o == 0) wr_cmd8(0x20);
+    else wr_cmd8(0x21);
 }
 // TFT have both column and raw autoincrement inside a window, with internal counters
 void TFT::window(int x, int y, int w, int h)
@@ -186,10 +199,70 @@ unsigned short TFT::pixelread(int x, int y)
     if(mipistd) color = BGR2RGB(color); // in case, convert BGR to RGB (should depend on cmd36 bit3) but maybe is device specific
     return color;
 }
+void TFT::setscrollarea (int startY, int areasize) // ie 0,480 for whole screen
+{
+    unsigned int bfa;
+    topfixedareasize=startY;
+    scrollareasize=areasize;
+    wr_cmd8(0x33);
+    wr_data16(topfixedareasize); //num lines of top fixed area
+    wr_data16(scrollareasize+scrollbugfix); //num lines of vertical scroll area, +1 for ILI9481 fix
+    if((areasize+startY)>height()) bfa=0;
+    else bfa = height()-(areasize+startY);
+    wr_data16(bfa); //num lines of bottom fixed area
+}
+void TFT::scroll (int lines) // ie 1= scrollup 1, 479= scrolldown 1
+{
+    wr_cmd8(0x37);
+    wr_data16((topfixedareasize+lines)%scrollareasize); //num lines of top fixed area
+}
+void TFT::scrollreset()
+{
+    wr_cmd8(0x13);  //normal display mode
+}
 void TFT::cls (void)
 {
     WindowMax();
-  //  proto->wr_gram(_background,LCDSIZE_X*LCDSIZE_Y);
-  //  proto->wr_gram(0,LCDSIZE_X*LCDSIZE_Y);
-    wr_gram(_background,LCDSIZE_X*LCDSIZE_Y);
+  //  proto->wr_gram(_background,screensize_X*screensize_Y);
+  //  proto->wr_gram(0,screensize_X*screensize_Y);
+    wr_gram(_background,screensize_X*screensize_Y);
+}
+// try to identify display controller
+void TFT::identify()
+{
+    // MIPI std read ID cmd
+    tftID=rd_reg_data32(0xBF);
+    mipistd=true;
+ //   debug("ID MIPI : 0x%8X\r\n",tftID);
+    if(((tftID&0xFF)==((tftID>>8)&0xFF)) && ((tftID&0xFF)==((tftID>>16)&0xFF)))
+    {
+        mipistd=false;
+        // ILI specfic read ID cmd
+        tftID=rd_reg_data32(0xD3)>>8; 
+    //    debug("ID ILI : 0x%8X\r\n",tftID);
+    }
+    if(((tftID&0xFF)==((tftID>>8)&0xFF)) && ((tftID&0xFF)==((tftID>>16)&0xFF)))
+    {
+        // ILI specfic read ID cmd with ili9341 specific spi read-in enable 0xD9 cmd
+        tftID=rd_extcreg_data32(0xD3, 0xD9);
+    //    debug("ID D9 extc ILI : 0x%8X\r\n",tftID);
+    }
+    if(((tftID&0xFF)==((tftID>>8)&0xFF)) && ((tftID&0xFF)==((tftID>>16)&0xFF)))
+    {
+        // ILI specfic read ID cmd with ili9486/88 specific spi read-in enable 0xFB cmd
+        tftID=rd_extcreg_data32(0xD3, 0xFB);
+    //    debug("ID D9 extc ILI : 0x%8X\r\n",tftID);
+    }
+    if(((tftID&0xFF)==((tftID>>8)&0xFF)) && ((tftID&0xFF)==((tftID>>16)&0xFF))) tftID=0xDEAD;
+    if ((tftID&0xFFFF)==0x9481) scrollbugfix=1;
+    else scrollbugfix=0;
+    hw_reset(); // in case wrong cmds messed up important settings
+}
+int TFT::sizeX()
+{
+    return screensize_X;
+}
+int TFT::sizeY()
+{
+    return screensize_Y;
 }

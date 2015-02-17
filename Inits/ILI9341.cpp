@@ -20,8 +20,8 @@ ILI9341::ILI9341(proto_t displayproto, PortName port, PinName CS, PinName reset,
 {
     hw_reset();
     BusEnable(true);
+    identify(); // will collect tftID and set mipistd flag
     init();
-    mipistd=false;
     set_orientation(0);
     cls();
     locate(0,0); 
@@ -31,8 +31,8 @@ ILI9341::ILI9341(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinNa
 {
     hw_reset(); //TFT class forwards to Protocol class
     BusEnable(true); //TFT class forwards to Protocol class
+    identify(); // will collect tftID and set mipistd flag
     init(); // per display custom init cmd sequence, implemented here
-    mipistd=false;
     set_orientation(0); //TFT class does for MIPI standard and some ILIxxx
     cls();
     locate(0,0); 

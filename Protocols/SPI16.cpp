@@ -121,26 +121,6 @@ void SPI16::wr_grambuf(unsigned short* data, unsigned int lenght)
     _CS = 1;
 #endif
 }
-unsigned int SPI16::rd_data32_wdummy()
-{
-#ifdef USE_CS
-    _CS = 0;
-#endif
-    unsigned int r=0;
-    _DC.write(1);; // 1=data
-   
-    r |= _spi.write(0); // we get only 15bit valid, first bit was the dummy cycle
-    r <<= 16;
-    r |= _spi.write(0);
-    r <<= 1; // 32bits are aligned, now collecting bit_0
-    r |= (_spi.write(0) >> 15);
-    // we clocked 15 more bit so ILI waiting for 16th, we need to reset spi bus
-    _CS = 1; // force CS HIG to interupt the cmd
-#ifndef USE_CS //if CS is not used, force fixed LOW again
-    _CS = 0;
-#endif
-    return r;
-}
 unsigned short SPI16::rd_gram()
 {
 #ifdef USE_CS
@@ -159,6 +139,45 @@ _CS = 1; // force CS HIG to interupt the "read state"
     // during reading, you read the raw 18bit gram
     r = RGB18to16((r&0xFC0000)>>16, (r&0xFC00)>>8, r&0xFC);// 18bit pixel, rrrrrr00_gggggg00_bbbbbb00, converted to 16bit
     return (unsigned short)r;
+}
+unsigned int SPI16::rd_reg_data32(unsigned char reg)
+{
+#ifdef USE_CS
+    _CS = 0;
+#endif
+    wr_cmd8(reg);
+    unsigned int r=0;
+    _DC.write(1);; // 1=data
+   
+    r |= _spi.write(0); // we get only 15bit valid, first bit was the dummy cycle
+    r <<= 16;
+    r |= _spi.write(0);
+    r <<= 1; // 32bits are aligned, now collecting bit_0
+    r |= (_spi.write(0) >> 15);
+    // we clocked 15 more bit so ILI waiting for 16th, we need to reset spi bus
+    _CS = 1; // force CS HIG to interupt the cmd
+#ifndef USE_CS //if CS is not used, force fixed LOW again
+    _CS = 0;
+#endif
+    return r;
+}
+unsigned int SPI16::rd_extcreg_data32(unsigned char reg, unsigned char SPIreadenablecmd)
+{
+    unsigned int r=0;
+    for(int regparam=1; regparam<4; regparam++) // when reading EXTC regs, first parameter is always dummy, so start with 1
+    {
+        wr_cmd8(SPIreadenablecmd);  // spi-in enable cmd, 0xD9 (ili9341) or 0xFB (ili9488) or don't know
+        wr_data8(0xF0|regparam);    // in low nibble specify which reg parameter we want
+        wr_cmd8(reg);               // now send cmd (select register we want to read)
+        _DC.write(1); // 1=data
+        r <<= 8;
+        r |= (_spi.write(0) >> 8);
+    }
+_CS = 1; // force CS HIG to interupt the cmd
+#ifndef USE_CS //if CS is not used, force fixed LOW again
+    _CS = 0;
+#endif
+    return r;
 }
 void SPI16::hw_reset()
 {

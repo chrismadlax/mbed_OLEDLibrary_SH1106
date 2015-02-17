@@ -19,8 +19,9 @@ TFT_MIPI::TFT_MIPI(proto_t displayproto, PortName port, PinName CS, PinName rese
 {
     hw_reset();
     BusEnable(true);
+    identify(); // will collect tftID, set mipistd flag
     init();
-    mipistd=true;
+//    scrollbugfix=1; // when scrolling 1 line, the last line disappears, set to 1 to fix it, for ili9481 is set automatically in identify()
     set_orientation(0);
     cls();
     locate(0,0); 
@@ -30,8 +31,9 @@ TFT_MIPI::TFT_MIPI(proto_t displayproto, int Hz, PinName mosi, PinName miso, Pin
 {
     hw_reset(); //TFT class forwards to Protocol class
     BusEnable(true); //TFT class forwards to Protocol class
+    identify(); // will collect tftID and set mipistd flag
     init(); // per display custom init cmd sequence, implemented here
-    mipistd=true;
+ //   scrollbugfix=1; // when scrolling 1 line, the last line disappears, set to 1 to fix it, for ili9481 is set automatically in identify()
     set_orientation(0); //TFT class does for MIPI standard and some ILIxxx
     cls();
     locate(0,0); 

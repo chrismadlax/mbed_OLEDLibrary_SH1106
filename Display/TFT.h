@@ -85,7 +85,7 @@ public:
     */
     virtual void copy_to_lcd(){ };
 
-    /** invert the screen
+    /** display inverted colors
       *
       * @param o = 0 normal, 1 invert
       */
@@ -113,6 +113,40 @@ public:
     * @param enable 0/1   
     */
     virtual void BusEnable(bool enable);
+    
+    /** Set scroll area boundaries
+    * scroll is done in hw but only on the native vertical axis
+    * TFTs are mainly native protrait view, so horizontal scroll if rotated in landscape view
+    *
+    * @param startY boundary offset from top (or left if rotated), 0 for fullscreen scroll
+    * @param areasize size of the scroll area, 480 for fullscreen scroll of a 320x480 display
+    */
+    void setscrollarea (int startY, int areasize);
+    
+    /** Scroll up(or left) the scrollarea
+    * 
+    * @param lines number of lines to scroll, 1= scrollup 1, areasize-1= scrolldown 1
+    */
+    void scroll (int lines);
+    
+    /** Reset the scrollarea and display un-scrolled screen
+    *  
+    */
+    void scrollreset();
+    
+    /** get display X size in pixels (native, orientation independent)
+    * @returns X size in pixels
+    */
+    int sizeX();
+
+    /** get display X size in pixels (native, orientation independent)
+    * @returns screen height in pixels.
+    */
+    int sizeY();
+    
+    unsigned int tftID;
+    
+    
     
     
 protected:
@@ -165,22 +199,35 @@ protected:
     */   
     virtual void wr_grambuf(unsigned short* data, unsigned int lenght);
     
-    /** Read 4x8bit data from display controller (with dummy cycle)
-    *
-    * @returns data as uint
-    *
-    */ 
-    virtual unsigned int rd_data32_wdummy();
-    
     /** Read 16bit pixeldata from display controller (with dummy cycle)
     *
     * @returns 16bit color
     */ 
     virtual unsigned short rd_gram();
     
+    /** Read 4x8bit register data (with dummy cycle)
+    * @param reg the register to read
+    * @returns data as uint
+    * 
+    */ 
+    virtual unsigned int rd_reg_data32(unsigned char reg);
+    
+    /** Read 3x8bit ExtendedCommands register data
+    * @param reg the register to read
+    * @param SPIreadenablecmd vendor/device specific cmd to read EXTC registers
+    * @returns data as uint
+    * @note EXTC regs (0xB0 to 0xFF) are read/write registers but needs special cmd to be read in SPI mode
+    */ 
+    virtual unsigned int rd_extcreg_data32(unsigned char reg, unsigned char SPIreadenablecmd);
+    
     /** HW reset sequence (without display init commands)   
     */
     void hw_reset();
+    
+    /** Try to identify display ID
+    * @note support ILI9341,94xx, MIPI standard. May be be overridden in Init class for other specific IC
+    */
+    virtual void identify();
     
     unsigned int scrollbugfix;
     bool mipistd;
@@ -188,15 +235,8 @@ protected:
 private:
 
     Protocols* proto;
-    const int LCDSIZE_X;
-    const int LCDSIZE_Y;
- //   const int LCDPAGES;
- //   const int IC_X_SEGS;
- //   const int IC_Y_COMS;
- //   const int IC_PAGES;
-    
- //   int page_offset;
- //   int col_offset;
+    const int screensize_X;
+    const int screensize_Y;
     // pixel location
     int cur_x;
     int cur_y;
@@ -206,7 +246,8 @@ private:
     int win_y1;
     int win_y2;
     int orientation;
-    unsigned int tftID;
+    int topfixedareasize;
+    int scrollareasize;
     bool useNOP;
 };
 

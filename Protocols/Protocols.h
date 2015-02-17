@@ -82,18 +82,26 @@ class Protocols
     */   
     virtual void wr_grambuf(unsigned short* data, unsigned int lenght) = 0;
     
-    /** Read 4x8bit data from display controller (with dummy cycle)
-    *
-    * @returns data as uint
-    *
-    */ 
-    virtual unsigned int rd_data32_wdummy() = 0;
-    
     /** Read 16bit pixeldata from display controller (with dummy cycle)
     *
     * @returns 16bit color
     */ 
     virtual unsigned short rd_gram() = 0;
+    
+    /** Read 4x8bit register data (with dummy cycle)
+    * @param reg the register to read
+    * @returns data as uint
+    * 
+    */ 
+    virtual unsigned int rd_reg_data32(unsigned char reg) = 0;
+    
+    /** Read 3x8bit ExtendedCommands register data
+    * @param reg the register to read
+    * @param SPIreadenablecmd vendor/device specific cmd to read EXTC registers
+    * @returns data as uint
+    * @note EXTC regs (0xB0 to 0xFF) are read/write registers but needs special cmd to be read in SPI mode
+    */ 
+    virtual unsigned int rd_extcreg_data32(unsigned char reg, unsigned char SPIreadenablecmd) = 0;
     
     /** HW reset sequence (without display init commands)   
     */
