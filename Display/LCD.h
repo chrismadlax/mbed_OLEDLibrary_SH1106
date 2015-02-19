@@ -148,6 +148,7 @@ public:
     void setscrollarea (int startY, int areasize){};
     void scroll (int lines){};
     void scrollreset(){};
+    void FastWindow(bool enable){};
     
     unsigned int tftID;
     

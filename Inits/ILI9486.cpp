@@ -23,6 +23,7 @@ ILI9486::ILI9486(proto_t displayproto, PortName port, PinName CS, PinName reset,
     identify(); // will collect tftID and set mipistd flag
     init();
     set_orientation(0);
+ //   FastWindow(true); // most but not all controllers support this, even if datasheet tells they should. ILI9486 does not, at least in par mode
     cls();
     locate(0,0); 
 }
@@ -34,6 +35,7 @@ ILI9486::ILI9486(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinNa
     identify(); // will collect tftID and set mipistd flag
     init(); // per display custom init cmd sequence, implemented here
     set_orientation(0); //TFT class does for MIPI standard and some ILIxxx
+ //   FastWindow(true); // most but not all controllers support this, even if datasheet tells they should. ILI9486 does not, at least in par mode
     cls();
     locate(0,0); 
 }

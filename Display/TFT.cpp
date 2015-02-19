@@ -36,6 +36,8 @@ TFT::TFT(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName
     set_auto_up(false); //we don't have framebuffer
     topfixedareasize=0;
     scrollareasize=0;
+    usefastwindow=false;
+    fastwindowready=false;
   //  cls();
   //  locate(0,0);
 }
@@ -60,6 +62,8 @@ TFT::TFT(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk,
     set_auto_up(false);
     topfixedareasize=0;
     scrollareasize=0;
+    usefastwindow=false;
+    fastwindowready=false;
   //  locate(0,0);
 }
 void TFT::wr_cmd8(unsigned char cmd)
@@ -157,11 +161,14 @@ void TFT::invert(unsigned char o)
     if(o == 0) wr_cmd8(0x20);
     else wr_cmd8(0x21);
 }
+void TFT::FastWindow(bool enable)
+    {
+        usefastwindow=enable;
+    }
 // TFT have both column and raw autoincrement inside a window, with internal counters
 void TFT::window(int x, int y, int w, int h)
 {
-    //ili9486 does not like truncated 2A/2B cmds, at least in par mode
-    //setting only start column/page would speedup, but needs a windowmax() before, maybe implement later
+    fastwindowready=false; // end raw/column going to be set to lower value than bottom-right corner
     wr_cmd8(0x2A);
     wr_data16(x);   //start column
     wr_data16(x+w-1);//end column
@@ -174,6 +181,7 @@ void TFT::window(int x, int y, int w, int h)
 }
 void TFT::window4read(int x, int y, int w, int h)
 {
+    fastwindowready=false;
     wr_cmd8(0x2A);
     wr_data16(x);   //start column
     wr_data16(x+w-1);//end column
@@ -186,14 +194,47 @@ void TFT::window4read(int x, int y, int w, int h)
 }
 void TFT::pixel(int x, int y, unsigned short color)
 {
-    window(x,y,1,1);
+    if(usefastwindow) //ili9486 does not like truncated 2A/2B cmds, at least in par mode
+    {
+        if(fastwindowready) //setting only start column/page does speedup, but needs end raw/column previously set to bottom-right corner
+        {
+            wr_cmd8(0x2A);
+            wr_data16(x);   //start column only
+            wr_cmd8(0x2B);
+            wr_data16(y);   //start page only
+            wr_cmd8(0x2C);  //write mem, just send pixels color next
+        }
+        else
+        {
+            window(x,y,width()-x,height()-y); // set also end raw/column to bottom-right corner
+            fastwindowready=true;
+        }
+    }
+    else window(x,y,1,1);
   //  proto->wr_gram(color);   // 2C expects 16bit parameters
     wr_gram(color);
 }
 unsigned short TFT::pixelread(int x, int y)
 {
+    if(usefastwindow) //ili9486 does not like truncated 2A/2B cmds, at least in par mode
+    {
+        if(fastwindowready) //setting only start column/page does speedup, but needs end raw/column previously set to bottom-right corner
+        {
+            wr_cmd8(0x2A);
+            wr_data16(x);   //start column only
+            wr_cmd8(0x2B);
+            wr_data16(y);   //start page only
+            wr_cmd8(0x2E);  //read mem, just pixelread next
+        }
+        else
+        {
+            window4read(x,y,width()-x,height()-y); // set also end raw/column to bottom-right corner
+            fastwindowready=true;
+        }
+    }
+    else window4read(x,y,1,1);
+    
     unsigned short color;
-    window4read(x,y,1,1);
   //  proto->wr_gram(color);   // 2C expects 16bit parameters
     color = rd_gram();
     if(mipistd) color = BGR2RGB(color); // in case, convert BGR to RGB (should depend on cmd36 bit3) but maybe is device specific

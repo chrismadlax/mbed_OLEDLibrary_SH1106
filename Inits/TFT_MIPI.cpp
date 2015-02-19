@@ -24,6 +24,7 @@ TFT_MIPI::TFT_MIPI(proto_t displayproto, PortName port, PinName CS, PinName rese
     init();
 //    scrollbugfix=1; // when scrolling 1 line, the last line disappears, set to 1 to fix it, for ili9481 is set automatically in identify()
     set_orientation(0);
+ //   FastWindow(true); // most but not all controllers support this, even if datasheet tells they should. Give a try
     cls();
     locate(0,0); 
 }
@@ -36,6 +37,7 @@ TFT_MIPI::TFT_MIPI(proto_t displayproto, int Hz, PinName mosi, PinName miso, Pin
     init(); // per display custom init cmd sequence, implemented here
  //   scrollbugfix=1; // when scrolling 1 line, the last line disappears, set to 1 to fix it, for ili9481 is set automatically in identify()
     set_orientation(0); //TFT class does for MIPI standard and some ILIxxx
+ //   FastWindow(true); // most but not all controllers support this, even if datasheet tells they should. Give a try
     cls();
     locate(0,0); 
 }

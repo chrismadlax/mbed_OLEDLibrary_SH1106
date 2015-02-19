@@ -25,6 +25,7 @@ ILI9341::ILI9341(proto_t displayproto, PortName port, PinName CS, PinName reset,
     init();
     set_orientation(0);
     cls();
+    FastWindow(true); // most but not all controllers support this, even if datasheet tells they should. 
     locate(0,0); 
 }
 ILI9341::ILI9341(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const char *name, unsigned int LCDSIZE_X , unsigned  int LCDSIZE_Y)
@@ -35,6 +36,7 @@ ILI9341::ILI9341(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinNa
     identify(); // will collect tftID and set mipistd flag
     init(); // per display custom init cmd sequence, implemented here
     set_orientation(0); //TFT class does for MIPI standard and some ILIxxx
+    FastWindow(true); // most but not all controllers support this, even if datasheet tells they should. 
     cls();
     locate(0,0); 
 }

@@ -110,9 +110,16 @@ public:
     virtual void set_orientation(int o);
     
     /** Set ChipSelect high or low
-    * @param enable 0/1   
+    * @param enable true/false   
     */
     virtual void BusEnable(bool enable);
+    
+    /** Enable fast window (default disabled)
+    * used to speedup functions that plots single pixels, like circle, oblique lines or just sparse pixels
+    * @param enable true/false
+    * @note most but not all controllers support this, even if datasheet tells they should
+    */
+    void FastWindow(bool enable);
     
     /** Set scroll area boundaries
     * scroll is done in hw but only on the native vertical axis
@@ -232,6 +239,7 @@ protected:
     unsigned int scrollbugfix;
     bool mipistd;
     
+    
 private:
 
     Protocols* proto;
@@ -249,6 +257,9 @@ private:
     int topfixedareasize;
     int scrollareasize;
     bool useNOP;
+    bool usefastwindow;
+    bool fastwindowready;
+    
 };
 
 #endif

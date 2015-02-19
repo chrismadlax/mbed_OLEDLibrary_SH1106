@@ -69,9 +69,6 @@ public:
     * @param color defines the color for the pixel.
     */
     virtual void pixel(int x, int y, unsigned short color) = 0;
-
-    
-        
     
     /** Set the window, which controls where items are written to the screen.
     * When something hits the window width, it wraps back to the left side
