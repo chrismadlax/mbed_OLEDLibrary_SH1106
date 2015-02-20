@@ -10,7 +10,7 @@
 
 #include "mbed.h"
 
-#define RGB18to16(r,g,b)  (((r&0xF8)<<8)|((g&0xFC)<<3)|((b&0xF8)>>3)) //5 red | 6 green | 5 blue
+#define RGB24to16(r,g,b)  (((r&0xF8)<<8)|((g&0xFC)<<3)|((b&0xF8)>>3)) //5 red | 6 green | 5 blue
 #define BGR2RGB(color) (((color&0x1F)<<11) | (color&0x7E0) | ((color&0xF800)>>11))
 
 //#define USE_CS
@@ -84,9 +84,10 @@ class Protocols
     
     /** Read 16bit pixeldata from display controller (with dummy cycle)
     *
+    * @param convert true/false. Convert 18bit to 16bit, some controllers returns 18bit
     * @returns 16bit color
     */ 
-    virtual unsigned short rd_gram() = 0;
+    virtual unsigned short rd_gram(bool convert) = 0;
     
     /** Read 4x8bit register data (with dummy cycle)
     * @param reg the register to read

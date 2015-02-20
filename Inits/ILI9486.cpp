@@ -22,6 +22,7 @@ ILI9486::ILI9486(proto_t displayproto, PortName port, PinName CS, PinName reset,
     BusEnable(true);
     identify(); // will collect tftID and set mipistd flag
     init();
+    auto_gram_read_format();// try to get read gram pixel format, could be 16bit or 18bit, RGB or BGR. Will set flags accordingly
     set_orientation(0);
  //   FastWindow(true); // most but not all controllers support this, even if datasheet tells they should. ILI9486 does not, at least in par mode
     cls();
@@ -34,6 +35,7 @@ ILI9486::ILI9486(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinNa
     BusEnable(true); //TFT class forwards to Protocol class
     identify(); // will collect tftID and set mipistd flag
     init(); // per display custom init cmd sequence, implemented here
+    auto_gram_read_format();// try to get read gram pixel format, could be 16bit or 18bit, RGB or BGR. Will set flags accordingly
     set_orientation(0); //TFT class does for MIPI standard and some ILIxxx
  //   FastWindow(true); // most but not all controllers support this, even if datasheet tells they should. ILI9486 does not, at least in par mode
     cls();

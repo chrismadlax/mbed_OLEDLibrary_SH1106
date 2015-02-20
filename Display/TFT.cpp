@@ -18,7 +18,7 @@
 
 #include "TFT.h"
 
-//#include "mbed_debug.h"
+#include "mbed_debug.h"
 
 #define SWAP(a, b)  { a ^= b; b ^= a; a ^= b; }
 
@@ -38,6 +38,8 @@ TFT::TFT(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName
     scrollareasize=0;
     usefastwindow=false;
     fastwindowready=false;
+    is18bit=false;
+    isBGR=false;
   //  cls();
   //  locate(0,0);
 }
@@ -64,6 +66,8 @@ TFT::TFT(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk,
     scrollareasize=0;
     usefastwindow=false;
     fastwindowready=false;
+    is18bit=false;
+    isBGR=false;
   //  locate(0,0);
 }
 void TFT::wr_cmd8(unsigned char cmd)
@@ -93,7 +97,7 @@ void TFT::wr_grambuf(unsigned short* data, unsigned int lenght)
     }
 unsigned short TFT::rd_gram()
     {
-        return proto->rd_gram();
+        return proto->rd_gram(is18bit); // protocol will handle 18to16 bit conversion
     }
 unsigned int TFT::rd_reg_data32(unsigned char reg)
     {
@@ -237,7 +241,7 @@ unsigned short TFT::pixelread(int x, int y)
     unsigned short color;
   //  proto->wr_gram(color);   // 2C expects 16bit parameters
     color = rd_gram();
-    if(mipistd) color = BGR2RGB(color); // in case, convert BGR to RGB (should depend on cmd36 bit3) but maybe is device specific
+    if(isBGR) color = BGR2RGB(color); // in case, convert BGR to RGB (should depend on cmd36 bit3) but maybe is device specific
     return color;
 }
 void TFT::setscrollarea (int startY, int areasize) // ie 0,480 for whole screen
@@ -267,6 +271,27 @@ void TFT::cls (void)
   //  proto->wr_gram(_background,screensize_X*screensize_Y);
   //  proto->wr_gram(0,screensize_X*screensize_Y);
     wr_gram(_background,screensize_X*screensize_Y);
+}
+// try to get read gram pixel format, could be 16bit or 18bit, RGB or BGR
+void TFT::auto_gram_read_format()
+{
+    unsigned short px=0xCDB1;
+    unsigned short rback, rback18;
+    pixel(0,0,px);
+    window4read(0,0,1,1);
+    rback=proto->rd_gram(0); // try 16bit
+    window4read(0,0,1,1);
+    rback18=proto->rd_gram(1); // try 18bit converted to 16
+    if((rback18==px) || (BGR2RGB(rback18)==px))
+    {
+        is18bit=true;
+        if(BGR2RGB(rback18)==px) isBGR=true;
+    }
+    else if((rback==px) || (BGR2RGB(rback)==px))
+    {
+        if(BGR2RGB(rback)==px) isBGR=true;
+    }
+ //   else debug("\r\nfail to identify gram read color format,\r\nsent %.4X read16 %.4X read18 %.4X", px, rback, rback18);    
 }
 // try to identify display controller
 void TFT::identify()

@@ -174,12 +174,12 @@ void PAR8::wr_grambuf(unsigned short* data, unsigned int lenght)
     _CS = 1;
 #endif
 }
-unsigned short PAR8::rd_gram()
+unsigned short PAR8::rd_gram(bool convert)
 {
 #ifdef USE_CS
     _CS = 0;
 #endif
-    unsigned short r=0;
+    unsigned int r=0;
     _DC = 1; // 1=data
    _port.input();
    
@@ -197,12 +197,22 @@ unsigned short PAR8::rd_gram()
 //    _RD = 0; // add wait
     r |= (_port.read()&0xFF);
     _RD = 1;
-    
+    if(convert)
+    {
+        r <<= 8;
+        _RD = 0;
+  //      _RD = 0; // add wait
+        r |= _port.read();
+        _RD = 1;
+        // gram is 18bit/pixel, if you set 16bit/pixel (cmd 3A), during writing the 16bits are expanded to 18bit
+        // during reading, you read the raw 18bit gram
+        r = RGB24to16((r&0xFF0000)>>16, (r&0xFF00)>>8, r&0xFF);// 18bit pixel padded to 24bits, rrrrrr00_gggggg00_bbbbbb00, converted to 16bit
+    }
 #ifdef USE_CS
     _CS = 1;
 #endif
     _port.output();
-    return r;
+    return (unsigned short)r;
 }
 unsigned int PAR8::rd_reg_data32(unsigned char reg)
 {

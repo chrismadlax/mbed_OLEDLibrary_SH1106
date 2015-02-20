@@ -208,6 +208,7 @@ protected:
     
     /** Read 16bit pixeldata from display controller (with dummy cycle)
     *
+    * @note autoconverts 18to16bit based on display identify info
     * @returns 16bit color
     */ 
     virtual unsigned short rd_gram();
@@ -231,13 +232,18 @@ protected:
     */
     void hw_reset();
     
+    /** Try to get read gram pixel format, could be 16bit or 18bit, RGB or BGR
+    * autoset internal flags so pixelread() will always return correct value.
+    */
+    virtual void auto_gram_read_format();
+    
     /** Try to identify display ID
     * @note support ILI9341,94xx, MIPI standard. May be be overridden in Init class for other specific IC
     */
     virtual void identify();
     
     unsigned int scrollbugfix;
-    bool mipistd;
+    
     
     
 private:
@@ -259,6 +265,9 @@ private:
     bool useNOP;
     bool usefastwindow;
     bool fastwindowready;
+    bool mipistd;
+    bool is18bit;
+    bool isBGR;
     
 };
 

@@ -22,6 +22,7 @@ TFT_MIPI::TFT_MIPI(proto_t displayproto, PortName port, PinName CS, PinName rese
     BusEnable(true);
     identify(); // will collect tftID, set mipistd flag
     init();
+    auto_gram_read_format();// try to get read gram pixel format, could be 16bit or 18bit, RGB or BGR. Will set flags accordingly
 //    scrollbugfix=1; // when scrolling 1 line, the last line disappears, set to 1 to fix it, for ili9481 is set automatically in identify()
     set_orientation(0);
  //   FastWindow(true); // most but not all controllers support this, even if datasheet tells they should. Give a try
@@ -35,6 +36,7 @@ TFT_MIPI::TFT_MIPI(proto_t displayproto, int Hz, PinName mosi, PinName miso, Pin
     BusEnable(true); //TFT class forwards to Protocol class
     identify(); // will collect tftID and set mipistd flag
     init(); // per display custom init cmd sequence, implemented here
+    auto_gram_read_format();// try to get read gram pixel format, could be 16bit or 18bit, RGB or BGR. Will set flags accordingly
  //   scrollbugfix=1; // when scrolling 1 line, the last line disappears, set to 1 to fix it, for ili9481 is set automatically in identify()
     set_orientation(0); //TFT class does for MIPI standard and some ILIxxx
  //   FastWindow(true); // most but not all controllers support this, even if datasheet tells they should. Give a try

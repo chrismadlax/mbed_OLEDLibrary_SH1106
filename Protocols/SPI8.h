@@ -76,9 +76,10 @@ protected:
     
     /** Read 16bit pixeldata from display controller (with dummy cycle)
     *
+    * @param convert true/false. Convert 18bit to 16bit, some controllers returns 18bit
     * @returns 16bit color
     */ 
-    virtual unsigned short rd_gram();
+    virtual unsigned short rd_gram(bool convert);
     
     /** Read 4x8bit register data (with dummy cycle)
     * @param reg the register to read
