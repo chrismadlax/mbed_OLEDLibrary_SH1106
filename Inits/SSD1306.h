@@ -1,12 +1,10 @@
 #ifndef MBED_SSD1306_H
 #define MBED_SSD1306_H
 
-
-
 #include "mbed.h"
 #include "LCD.h"
 
-/** Class for UC1608 display controller
+/** Class for SSD1306 display controller
 * to be copypasted and adapted for other controllers
 */
 class SSD1306 : public LCD
@@ -42,13 +40,6 @@ class SSD1306 : public LCD
     * @param LCDSIZE_Y y size in pixel - optional
     */ 
     SSD1306(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const char* name , unsigned int LCDSIZE_X = 128, unsigned  int LCDSIZE_Y = 64);
-  
-    /** set the contrast of the screen
-      * @note here overrided because of not standard command
-      * @param o contrast 0-63
-      */
-    virtual void set_contrast(int o);
-    
   
 protected:
     
