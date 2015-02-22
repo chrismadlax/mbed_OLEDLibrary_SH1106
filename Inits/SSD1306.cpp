@@ -64,38 +64,38 @@ void SSD1306::init()
   //  wr_cmd8(0xE2);   //  sw reset
     wait_ms(15);
     
-    wr_cmd8(SSD1306_DISPLAYOFF);   
-    wr_cmd8(SSD1306_SETDISPLAYCLOCKDIV);   
-    wr_cmd8(0x80); 
-    wr_cmd8(SSD1306_SETMULTIPLEX);
-    wr_cmd8(63);
+    wr_cmd8(SSD1306_DISPLAYOFF);    // no problem in SPI_16 for single byte cmds
+    wr_cmd16((SSD1306_SETDISPLAYCLOCKDIV<<8)|0x80);   // wr_cmd16 for multibyte cmds issue in SPI16 mode
+  //  wr_cmd8(0x80); // in SPI_16 it would become 0xE380 and will break things up
+    wr_cmd16((SSD1306_SETMULTIPLEX<<8)|63);
+ //   wr_cmd8(63);
     
-    wr_cmd8(SSD1306_SETDISPLAYOFFSET);
-    wr_cmd8(0x0);
+    wr_cmd16((SSD1306_SETDISPLAYOFFSET<<8)|0x00);
+ //   wr_cmd8(0x0);
     
     wr_cmd8(SSD1306_SETSTARTLINE | 0x0);            // line #0
 
-    wr_cmd8(SSD1306_CHARGEPUMP);
-    wr_cmd8(0x14);                         // 0x10 
+    wr_cmd16((SSD1306_CHARGEPUMP<<8)|0x14);
+  //  wr_cmd8(0x14);                         // 0x10 
 
-    wr_cmd8(SSD1306_MEMORYMODE);
-    wr_cmd8(0x00);                                  // 0x0 act like ks0108
+    wr_cmd16((SSD1306_MEMORYMODE<<8)|0x00);
+ //   wr_cmd8(0x00);                                  // 0x0 act like ks0108
 
     wr_cmd8(SSD1306_SEGREMAP ); //| 0x1);
 
     wr_cmd8(SSD1306_COMSCANDEC);
 
-    wr_cmd8(SSD1306_SETCOMPINS);
-    wr_cmd8(0x12);                           //        LCDSIZE_Y == 32 ? 0x02 : 0x12);        
+    wr_cmd16((SSD1306_SETCOMPINS<<8)|0x12);
+  //  wr_cmd8(0x12);                           //        LCDSIZE_Y == 32 ? 0x02 : 0x12);        
 
-    wr_cmd8(SSD1306_SETCONTRAST);
-    wr_cmd8(0xCF);                              //  _rawHeight == 32 ? 0x8F : ((vccstate == SSD1306_EXTERNALVCC) ? 0x9F : 0xCF) );
+    wr_cmd16((SSD1306_SETCONTRAST<<8)|0xCF);
+ //   wr_cmd8(0xCF);                              //  _rawHeight == 32 ? 0x8F : ((vccstate == SSD1306_EXTERNALVCC) ? 0x9F : 0xCF) );
 
-    wr_cmd8(SSD1306_SETPRECHARGE);
-    wr_cmd8(0xF1);                               // : 0x22);
+    wr_cmd16((SSD1306_SETPRECHARGE<<8)|0xF1);
+ //   wr_cmd8(0xF1);                               // : 0x22);
 
-    wr_cmd8(SSD1306_SETVCOMDETECT);
-    wr_cmd8(0x40);
+    wr_cmd16((SSD1306_SETVCOMDETECT<<8)|0x40);
+ //   wr_cmd8(0x40);
 
     wr_cmd8(SSD1306_DISPLAYALLON_RESUME);
 
