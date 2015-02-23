@@ -333,36 +333,30 @@ void GraphicsDisplay::Bitmap_BW(Bitmap_s bm, int x, int y)
 }
 void GraphicsDisplay::Bitmap(int x, int y, int w, int h,unsigned char *bitmap)
 {
-    int  j,i;
-    int padd;
+    int  j;
+    unsigned char  padd;
     unsigned short *bitmap_ptr = (unsigned short *)bitmap;    
-//    unsigned short i;
-    
-    // the lines are padded to multiple of 4 bytes in a bitmap
-    padd = -1;
-    do {
-        padd ++;
-    } while (2*(w + padd)%4 != 0);
+
+    padd = w%2; // the lines are padded to multiple of 4 bytes in a bitmap
     if(x<0) x=0;
+    else if(x>=oriented_width) return;
     if(y<0) y=0;
+    else if(y>=oriented_height) return;
     int cropX = (x+w)-oriented_width;
     if(cropX<0) cropX=0;
-    window(x, y, w-cropX, h);
-    bitmap_ptr += ((h - 1)* (w + padd));
-//    wr_cmd(0x2C);  // send pixel
-    for (j = 0; j < h; j++) {         //Lines
-        if((h + y) >= oriented_height) break; // no need to crop Y
-        for (i = 0; i < w; i++) {     // one line
-                if((w + x) < oriented_width) window_pushpixel(*bitmap_ptr); //fixme, send chunk w-cropX lenght and incr bitmapptr if out of margin
-                bitmap_ptr++;
-        }
-        bitmap_ptr -= 2*w;
-        bitmap_ptr -= padd;
+    int cropY = (y+h)-oriented_height;
+    if(cropY<0) cropY=0;
+    window(x, y, w-cropX, h-cropY);
+    bitmap_ptr += ((h - 1)* (w + padd)); // begin of last line in array (first line of image)(standard bmp scan direction is left->right bottom->top)
+    for (j = 0; j < h-cropY; j++) {         //Lines
+        window_pushpixelbuf(bitmap_ptr, w-cropX);
+        bitmap_ptr -= w+padd;
     }
     if(auto_up) copy_to_lcd();
 }
-// local filesystem is not implemented in kinetis board , but you can add a SD card
 
+// local filesystem is not implemented in kinetis board , but you can add a SD card
+// fixme this whole functions needs testing and speedup
 int GraphicsDisplay::BMP_16(int x, int y, const char *Name_BMP)
 {
 
