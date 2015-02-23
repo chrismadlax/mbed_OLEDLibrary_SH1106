@@ -18,7 +18,7 @@
 
 #include "TFT.h"
 
-#include "mbed_debug.h"
+//#include "mbed_debug.h"
 
 #define SWAP(a, b)  { a ^= b; b ^= a; a ^= b; }
 

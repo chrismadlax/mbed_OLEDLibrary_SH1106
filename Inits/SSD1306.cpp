@@ -132,5 +132,5 @@ void SSD1306::set_contrast(int o)
 {
     contrast = o;
   
-    wr_cmd16(0x8100|(o));
+    wr_cmd16(0x8100|(o&0xFF));
 }

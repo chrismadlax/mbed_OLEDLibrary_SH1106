@@ -40,7 +40,13 @@ class SSD1306 : public LCD
     * @param LCDSIZE_Y y size in pixel - optional
     */ 
     SSD1306(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const char* name , unsigned int LCDSIZE_X = 128, unsigned  int LCDSIZE_Y = 64);
-  
+
+    /** set the contrast of the screen
+      * @note here overrided because of not standard value range
+      * @param o contrast 0-255
+      */
+    virtual void set_contrast(int o);
+    
 protected:
     
     

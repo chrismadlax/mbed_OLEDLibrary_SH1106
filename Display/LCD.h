@@ -8,6 +8,10 @@
 #include "SPI16.h"
 #include "Protocols.h"
 
+// undefine the KL43Z and KL46Z LCD macro
+#ifdef LCD
+#undef LCD
+#endif
 
 /** Draw mode
   * NORMAl
