@@ -134,3 +134,44 @@ void SSD1306::set_contrast(int o)
   
     wr_cmd16(0x8100|(o&0xFF));
 }
+
+////////////////////////////////////////////////////////////////////
+// functions that overrides the standard ones implemented in LCD.cpp
+////////////////////////////////////////////////////////////////////
+
+
+const uint8_t scroll_speed[8]={3,2,1,6,0,5,4,7};
+
+////////////////////////////////////////////////////////////////////
+// functions addon  to LCD.cpp
+////////////////////////////////////////////////////////////////////
+void SSD1306::horizontal_scroll(int l_r,int s_page,int e_page,int speed){
+    wr_cmd8(0x2E);                      // deactivate scroll before change
+    if(l_r == 1){
+        wr_cmd16(0x2700);               // horizontal scroll left
+    }
+    else {
+        wr_cmd16(0x2600);
+    }
+    wr_cmd16((s_page & 0x07)<<8 | (scroll_speed[speed & 0x07]));
+    wr_cmd16((e_page & 0x07)<<8 );
+    wr_cmd16(0xFF2F);
+}
+
+void SSD1306::horiz_vert_scroll(int l_r,int s_page,int e_page,int v_off,int speed){
+    wr_cmd8(0x2E);                      // deactivate scroll before change
+    if(l_r == 1){
+            wr_cmd16(0x2A00);               // horizontal scroll left
+        }
+        else {
+            wr_cmd16(0x2900);
+        }
+        wr_cmd16((s_page & 0x07)<<8 | (scroll_speed[speed & 0x07]));
+        wr_cmd16((e_page & 0x07)<<8 | (v_off & 0x3F) );
+        wr_cmd8(0x2F);
+
+}
+
+void SSD1306::end_scroll(){
+    wr_cmd8(0x2E);
+}

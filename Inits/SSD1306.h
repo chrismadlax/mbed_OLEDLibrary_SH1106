@@ -47,7 +47,28 @@ class SSD1306 : public LCD
       */
     virtual void set_contrast(int o);
     
-protected:
+    /** set automatc horizontal scroll mode
+     * @param l_r direction - left = 0, right = 1
+     * @param s_page start page
+     * @param e_page end page
+     * @param speed time between horizontal shift. 0 slow .. 7 fast
+     */
+    void horizontal_scroll(int l_r,int s_page,int e_page,int speed);
+
+    /** automatic horizontal + vertical scroll mode
+     * @param l_r direction - left = 0, right = 1
+     * @param s_page start page
+     * @param e_page end page
+     * @param v_off vertical offset for scroll
+     * @param speed time between horizontal shift. 0 slow .. 7 fast
+     */
+    void horiz_vert_scroll(int l_r,int s_page,int e_page,int v_off,int speed);
+
+    /** end scroll mode
+     *
+     */
+    void end_scroll(void);
+    protected:
     
     
     /** Init command sequence  
