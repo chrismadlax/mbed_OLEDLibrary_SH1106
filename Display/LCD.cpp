@@ -278,7 +278,7 @@ void LCD::cls(void)
      //   wr_cmd8(0x10|(col_offset>>4));      // set column hi  nibble
         wr_cmd16(setcolcmd);
         wr_cmd8(0xB0|(page+page_offset));      // set page
-        wr_gram(tmp, screensize_X>>1);   // send whole page pixels =0
+        wr_gram(tmp, screensize_X>>1);   // send whole page pixels = background
     }
 }
 int LCD::sizeX()

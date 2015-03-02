@@ -16,7 +16,7 @@ class TFT_MIPI : public TFT
  public:
 
     /** Create a PAR display interface
-    * @param displayproto only supports PAR_8
+    * @param displayproto PAR_8 or PAR_16
     * @param port GPIO port name to use
     * @param CS pin connected to CS of display
     * @param reset pin connected to RESET of display
@@ -30,7 +30,7 @@ class TFT_MIPI : public TFT
     TFT_MIPI(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const char* name , unsigned int LCDSIZE_X = 320, unsigned  int LCDSIZE_Y = 480);
   
     /** Create an SPI display interface
-    * @param displayproto only supports SPI_8
+    * @param displayproto SPI_8 or SPI_16
     * @param Hz SPI speed in Hz
     * @param mosi SPI pin
     * @param miso SPI pin

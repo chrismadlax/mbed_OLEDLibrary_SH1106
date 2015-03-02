@@ -1,15 +1,15 @@
-#ifndef MBED_IST3020_H
-#define MBED_IST3020_H
+#ifndef MBED_ST7565_H
+#define MBED_ST7565_H
 
 
 
 #include "mbed.h"
 #include "LCD.h"
 
-/** Class for IST3020 display controller
+/** Class for ST7565 and similar display controllers
 * to be copypasted and adapted for other controllers
 */
-class IST3020 : public LCD
+class ST7565 : public LCD
 {
  
  public:
@@ -26,7 +26,7 @@ class IST3020 : public LCD
     * @param LCDSIZE_X x size in pixel - optional
     * @param LCDSIZE_Y y size in pixel - optional
     */ 
-    IST3020(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const char* name, unsigned int LCDSIZE_X = 192, unsigned  int LCDSIZE_Y = 64);
+    ST7565(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const char* name, unsigned int LCDSIZE_X = 132, unsigned  int LCDSIZE_Y = 64);
   
     /** Create an SPI display interface
     * @param displayproto SPI_8 or SPI_16
@@ -41,7 +41,7 @@ class IST3020 : public LCD
     * @param LCDSIZE_X x size in pixel - optional
     * @param LCDSIZE_Y y size in pixel - optional
     */ 
-    IST3020(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const char* name, unsigned int LCDSIZE_X = 192, unsigned  int LCDSIZE_Y = 64);
+    ST7565(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const char* name, unsigned int LCDSIZE_X = 132, unsigned  int LCDSIZE_Y = 64);
   
 
   
