@@ -96,6 +96,35 @@ protected:
     */ 
     virtual unsigned int rd_extcreg_data32(unsigned char reg, unsigned char SPIreadenablecmd);
     
+    /** ILI932x specific, does a dummy read cycle, number of bits is protocol dependent
+    * for PAR protocols: a signle RD bit toggle
+    * for SPI8: 8clocks
+    * for SPI16: 16 clocks
+    */   
+    virtual void dummyread ();
+    
+    /** ILI932x specific, select register for a successive write or read
+    *
+    * @param reg register to be selected
+    * @param forread false = a write next (default), true = a read next
+    * @note forread only used by SPI protocols
+    */   
+    virtual void reg_select(unsigned char reg, bool forread =false);
+    
+    /** ILI932x specific, write register with data
+    *
+    * @param reg register to write
+    * @param data 16bit data
+    */   
+    virtual void reg_write(unsigned char reg, unsigned short data);
+    
+    /** ILI932x specific, read register
+    *
+    * @param reg register to be read
+    * @returns 16bit register value
+    */ 
+    virtual unsigned short reg_read(unsigned char reg);
+    
     /** HW reset sequence (without display init commands)   
     */
     virtual void hw_reset();

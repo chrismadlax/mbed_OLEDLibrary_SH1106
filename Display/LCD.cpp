@@ -243,15 +243,17 @@ void LCD::pixel(int x, int y, unsigned short color)
     // first check parameter
     if((x >= screensize_X) || (y >= screensize_Y)) return;
 
-//    if(draw_mode == NORMAL)
-//    {
-        if(color) buffer[(x + ((y>>3)*screensize_X))^1] &= ~(1 << (y&7));  // erase pixel
-        else buffer[(x + ((y>>3)*screensize_X))^1] |= (1 << (y&7));   //Black=0000, set pixel
-//    }
-//    else
-//    { // XOR mode
-//        if(color == 1) buffer[x + ((y>>3) * screensize_X)] ^= (1 << (y&7));   // xor pixel
-//    }
+    if(color) buffer[(x + ((y>>3)*screensize_X))^1] &= ~(1 << (y&7));  // erase pixel
+    else buffer[(x + ((y>>3)*screensize_X))^1] |= (1 << (y&7));   //Black=0000, set pixel
+}
+unsigned short LCD::pixelread(int x, int y)
+{
+    if(!(orientation&1)) SWAP(x,y);
+    // first check parameter
+    if((x >= screensize_X) || (y >= screensize_Y)) return 0;
+    
+    if((buffer[(x + ((y>>3)*screensize_X))^1] & (1 << (y&7)))==0) return 0xFFFF ;  // pixel not set, White
+    else return 0; // pixel set, Black
 }
 void LCD::copy_to_lcd(void)
 {

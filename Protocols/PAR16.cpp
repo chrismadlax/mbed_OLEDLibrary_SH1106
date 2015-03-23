@@ -25,56 +25,27 @@ PAR16::PAR16(PortName port, PinName CS, PinName reset, PinName DC, PinName WR, P
     _WR=1;
     _RD=1;
     _CS=1;
-#ifdef STMPORTDEBUG
-    findport(port); //on return, GPIO get disabled
-#endif
     _port.mode(PullNone);
     _port.output(); // will re-enable our GPIO port
     hw_reset();    
 }
 
-#ifdef STMPORTDEBUG
-// create a port obj with STM HAL drivers, just to collect memorymapped regs
-void PAR16::findport(PortName port)
-{
-    port_t tempport;
-    port_init(&tempport, port, 0xFF, PIN_INPUT);
-    outreg = tempport.reg_out;
-    inreg = tempport.reg_in;
- //   debug("out 0x%.8X  in 0x%.8X\r\n", outreg, inreg);
-}
-#endif
 void PAR16::wr_cmd8(unsigned char cmd)
-{   
-#ifdef USE_CS
-    _CS = 0;
-#endif    
+{      
     _DC = 0; // 0=cmd
     _port.write(cmd);      // write 8bit
     _WR=0;
     _WR=1;
-#ifdef USE_CS
-    _CS = 1;
-#endif
+    _DC = 1; // 1=data next
 }
 void PAR16::wr_data8(unsigned char data)
 {
-#ifdef USE_CS
-    _CS = 0;
-#endif
-    _DC = 1; // 1=data
     _port.write(data);    // write 8bit
     _WR=0;
     _WR=1;
-#ifdef USE_CS
-    _CS = 1;
-#endif
 }
 void PAR16::wr_cmd16(unsigned short cmd)
-{   
-#ifdef USE_CS
-    _CS = 0;
-#endif    
+{    
     _DC = 0; // 0=cmd
     _port.write(cmd>>8);      // write 8bit
     _WR=0;
@@ -82,62 +53,35 @@ void PAR16::wr_cmd16(unsigned short cmd)
     _port.write(cmd&0xFF);      // write 8bit
     _WR=0;
     _WR=1;
-#ifdef USE_CS
-    _CS = 1;
-#endif
+    _DC = 1; // 1=data next
 }
 void PAR16::wr_data16(unsigned short data)
 {
-#ifdef USE_CS
-    _CS = 0;
-#endif
-    _DC = 1; // 1=data
     _port.write(data>>8);    // write 8bit
     _WR=0;
     _WR=1;
     _port.write(data&0xFF);    // write 8bit
     _WR=0;
     _WR=1;
-#ifdef USE_CS
-    _CS = 1;
-#endif
 }
 void PAR16::wr_gram(unsigned short data)
 {
-#ifdef USE_CS
-    _CS = 0;
-#endif
-    _DC = 1; // 1=data
     _port.write(data);    // write 16bit
     _WR=0;
     _WR=1;
-#ifdef USE_CS
-    _CS = 1;
-#endif
 }
 void PAR16::wr_gram(unsigned short data, unsigned int count)
 {
-#ifdef USE_CS
-    _CS = 0;
-#endif
-    _DC = 1; // 1=data
     while(count)
     {
-        _port.write(data);    // write 16bit
+        _port.write(data);    // rewrite even if same data, otherwise too much fast
         _WR=0;
         _WR=1;
         count--;
     }
-#ifdef USE_CS
-    _CS = 1;
-#endif
 }
 void PAR16::wr_grambuf(unsigned short* data, unsigned int lenght)
 {
-#ifdef USE_CS
-    _CS = 0;
-#endif
-    _DC = 1; // 1=data
     while(lenght)
     {
         _port.write(*data);    // write 16bit
@@ -146,17 +90,10 @@ void PAR16::wr_grambuf(unsigned short* data, unsigned int lenght)
         data++;
         lenght--;
     }
-#ifdef USE_CS
-    _CS = 1;
-#endif
 }
 unsigned short PAR16::rd_gram(bool convert)
 {
-#ifdef USE_CS
-    _CS = 0;
-#endif
     unsigned int r=0;
-    _DC = 1; // 1=data
    _port.input();
    
     _RD = 0;
@@ -164,7 +101,7 @@ unsigned short PAR16::rd_gram(bool convert)
     _RD = 1;
     
     _RD = 0;
-//    _RD = 0; // add wait
+  //  _RD = 0; // add wait
     r |= _port.read();
     _RD = 1;
     if(convert)
@@ -178,20 +115,14 @@ unsigned short PAR16::rd_gram(bool convert)
         // during reading, you read the raw 18bit gram
         r = RGB24to16((r&0xFF0000)>>16, (r&0xFF00)>>8, r&0xFF);// 18bit pixel padded to 24bits, rrrrrr00_gggggg00_bbbbbb00, converted to 16bit
     }
-#ifdef USE_CS
-    _CS = 1;
-#endif
     _port.output();
     return (unsigned short)r;
 }
 unsigned int PAR16::rd_reg_data32(unsigned char reg)
 {
-#ifdef USE_CS
-    _CS = 0;
-#endif
     wr_cmd8(reg);
     unsigned int r=0;
-    _DC = 1; // 1=data
+  //  _DC = 1; // 1=data
    _port.input();
    
     _RD = 0;
@@ -221,10 +152,9 @@ unsigned int PAR16::rd_reg_data32(unsigned char reg)
     r |= (_port.read()&0xFF);
     _RD = 1;
     
-    _CS = 1; // force CS HIG to interupt the cmd in case was not supported
-#ifndef USE_CS //if CS is not used, force fixed LOW again
+    _CS = 1; // toggle CS to interupt the cmd in case was not supported
     _CS = 0;
-#endif
+
     _port.output();
     return r;
 }
@@ -232,6 +162,52 @@ unsigned int PAR16::rd_reg_data32(unsigned char reg)
 unsigned int PAR16::rd_extcreg_data32(unsigned char reg, unsigned char SPIreadenablecmd)
 {
     return rd_reg_data32(reg);
+}
+// ILI932x specific
+void PAR16::dummyread()
+{
+    _port.input();
+    _RD = 0;
+    _port.read();    // dummy read
+    _RD=1;
+ //   _port.output();
+}
+// ILI932x specific
+void PAR16::reg_select(unsigned char reg, bool forread)
+{    
+    _DC = 0;
+    _port.write(reg);    // write 16bit
+    _WR=0;
+    _WR=1;
+    _DC = 1; // 1=data next
+}
+// ILI932x specific
+void PAR16::reg_write(unsigned char reg, unsigned short data)
+{
+    _DC = 0;
+    _port.write(reg);    // write 16bit
+    _WR=0;
+    _WR=1;
+    _DC = 1;
+    _port.write(data);    // write 16bit
+    _WR=0;
+    _WR=1;
+}
+// ILI932x specific
+unsigned short PAR16::reg_read(unsigned char reg)
+{
+    unsigned short r=0;
+    _DC = 0;
+    _port.write(reg);    // write 16bit
+    _WR=0;
+    _WR=1;
+    _DC = 1;
+    _port.input();
+    _RD=0;
+    r |= _port.read();    // read 16bit
+    _RD=1;
+    _port.output();
+    return r;
 }
 void PAR16::hw_reset()
 {
@@ -241,12 +217,9 @@ void PAR16::hw_reset()
     _WR = 1;
     _RD = 1;
     _reset = 0;                        // display reset
-    wait_us(50);
+    wait_ms(2);
     _reset = 1;                       // end reset
-    wait_ms(15);
-#ifndef USE_CS
-    _CS=0;      // put CS low now and forever
-#endif
+    wait_ms(100);
 }
 void PAR16::BusEnable(bool enable)
 {

@@ -123,6 +123,7 @@ void TFT::window_pushpixelbuf(unsigned short* color, unsigned int lenght)
 void TFT::hw_reset()
     {
         proto->hw_reset();
+        BusEnable(true);
     }
 void TFT::BusEnable(bool enable)
     {
@@ -291,7 +292,7 @@ void TFT::auto_gram_read_format()
     {
         if(BGR2RGB(rback)==px) isBGR=true;
     }
- //   else debug("\r\nfail to identify gram read color format,\r\nsent %.4X read16 %.4X read18 %.4X", px, rback, rback18);    
+ //   debug("\r\nIdentify gram read color format,\r\nsent %.4X read16 %.4X(bgr%.4X) read18 %.4X(bgr%.4X)", px, rback, BGR2RGB(rback), rback18, BGR2RGB(rback18));   
 }
 // try to identify display controller
 void TFT::identify()

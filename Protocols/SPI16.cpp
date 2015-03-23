@@ -17,7 +17,6 @@
  */
  
 #include "SPI16.h"
-//#define USE_CS
 
 SPI16::SPI16(int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC)
     : _CS(CS), _spi(mosi, miso, sclk), _reset(reset), _DC(DC)
@@ -33,101 +32,52 @@ SPI16::SPI16(int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinNa
 
 void SPI16::wr_cmd8(unsigned char cmd)
 {   
-#ifdef USE_CS
-    _CS = 0;
-#endif
     _spi.format(8,0); // it takes time, better use wr_cmd16 with NOP cmd
     _DC.write(0); // 0=cmd
     _spi.write(cmd);      // write 8bit
     _spi.format(16,0);
-#ifdef USE_CS
-    _CS = 1;
-#endif
+    _DC.write(1); // 1=data next
 }
 void SPI16::wr_data8(unsigned char data)
 {
-#ifdef USE_CS
-    _CS = 0;
-#endif
     _spi.format(8,0); // it takes time, check prev cmd parameter, in case use wr_data16 with repeated byte
-    _DC.write(1); // 1=data
     _spi.write(data);    // write 8bit
     _spi.format(16,0);
-#ifdef USE_CS
-    _CS = 1;
-#endif
 }
 void SPI16::wr_cmd16(unsigned short cmd)
-{   
-#ifdef USE_CS
-    _CS = 0;
-#endif    
+{     
     _DC.write(0); // 0=cmd
     _spi.write(cmd);      // write 16bit
-#ifdef USE_CS
-    _CS = 1;
-#endif
+    _DC.write(1); // 1=data next
 }
 void SPI16::wr_data16(unsigned short data)
 {
-#ifdef USE_CS
-    _CS = 0;
-#endif
-    _DC.write(1); // 1=data
     _spi.write(data);    // write 16bit
-#ifdef USE_CS
-    _CS = 1;
-#endif
 }
 void SPI16::wr_gram(unsigned short data)
 {
-#ifdef USE_CS
-    _CS = 0;
-#endif
-    _DC.write(1); // 1=data
     _spi.write(data);    // write 16bit
-#ifdef USE_CS
-    _CS = 1;
-#endif
 }
 void SPI16::wr_gram(unsigned short data, unsigned int count)
 {
-#ifdef USE_CS
-    _CS = 0;
-#endif
-    _DC.write(1); // 1=data
     while(count)
     {
         _spi.write(data);
         count--;
     }
-#ifdef USE_CS
-    _CS = 1;
-#endif
 }
 void SPI16::wr_grambuf(unsigned short* data, unsigned int lenght)
 {
-#ifdef USE_CS
-    _CS = 0;
-#endif
-    _DC.write(1); // 1=data
     while(lenght)
     {
         _spi.write(*data);
         data++;
         lenght--;
     }
-#ifdef USE_CS
-    _CS = 1;
-#endif
 }
 unsigned short SPI16::rd_gram(bool convert)
 {
-#ifdef USE_CS
-    _CS = 0;
-#endif
     unsigned int r=0;
-    _DC.write(1); // 1=data
     r |= _spi.write(0); // 16bit, whole first byte is dummy, second is red
     r <<= 16;
     r |= _spi.write(0);  
@@ -138,20 +88,15 @@ unsigned short SPI16::rd_gram(bool convert)
         r = RGB24to16((r&0xFF0000)>>16, (r&0xFF00)>>8, r&0xFF);// 18bit pixel padded to 24bits, rrrrrr00_gggggg00_bbbbbb00, converted to 16bit
     }
     else r >>= 8;
-_CS = 1; // force CS HIG to interupt the "read state"
-#ifndef USE_CS //if CS is not used, force fixed LOW again
+    _CS = 1; // force CS HIG to interupt the "read state"
     _CS = 0;
-#endif
+
     return (unsigned short)r;
 }
 unsigned int SPI16::rd_reg_data32(unsigned char reg)
 {
-#ifdef USE_CS
-    _CS = 0;
-#endif
     wr_cmd8(reg);
     unsigned int r=0;
-    _DC.write(1);; // 1=data
    
     r |= _spi.write(0); // we get only 15bit valid, first bit was the dummy cycle
     r <<= 16;
@@ -160,9 +105,7 @@ unsigned int SPI16::rd_reg_data32(unsigned char reg)
     r |= (_spi.write(0) >> 15);
     // we clocked 15 more bit so ILI waiting for 16th, we need to reset spi bus
     _CS = 1; // force CS HIG to interupt the cmd
-#ifndef USE_CS //if CS is not used, force fixed LOW again
     _CS = 0;
-#endif
     return r;
 }
 unsigned int SPI16::rd_extcreg_data32(unsigned char reg, unsigned char SPIreadenablecmd)
@@ -173,29 +116,71 @@ unsigned int SPI16::rd_extcreg_data32(unsigned char reg, unsigned char SPIreaden
         wr_cmd8(SPIreadenablecmd);  // spi-in enable cmd, 0xD9 (ili9341) or 0xFB (ili9488) or don't know
         wr_data8(0xF0|regparam);    // in low nibble specify which reg parameter we want
         wr_cmd8(reg);               // now send cmd (select register we want to read)
-        _DC.write(1); // 1=data
         r <<= 8;
         r |= (_spi.write(0) >> 8);
     }
-_CS = 1; // force CS HIG to interupt the cmd
-#ifndef USE_CS //if CS is not used, force fixed LOW again
+    _CS = 1; // force CS HIG to interupt the cmd
     _CS = 0;
-#endif
+
     return r;
+}
+// ILI932x specific
+void SPI16::dummyread()
+{
+    _spi.write(0);    // dummy read
+}
+// ILI932x specific
+void SPI16::reg_select(unsigned char reg, bool forread)
+{
+    _CS = 1;    //fixme: really needed?
+    _CS = 0;    //fixme: really needed?
+    _spi.write(0x70);   // write 0070
+    _spi.write(reg);    // write 16bit
+    _CS = 1;    //fixme: really needed?
+    _CS = 0;    //fixme: really needed?
+    if(forread) _spi.write(0x73);
+    else _spi.write(0x72);
+}
+// ILI932x specific
+void SPI16::reg_write(unsigned char reg, unsigned short data)
+{
+    _CS = 1;    //fixme: really needed?
+    _CS = 0;    //fixme: really needed?
+    _spi.write(0x70);   // write 0070
+    _spi.write(reg);    // write 16bit
+    _CS = 1;    //fixme: really needed?
+    _CS = 0;    //fixme: really needed?
+    _spi.write(0x72);   // write 0072 
+    _spi.write(data);   // write 16bit
+}
+// ILI932x specific
+unsigned short SPI16::reg_read(unsigned char reg)
+{
+    unsigned int r=0;
+    _CS = 1;    //fixme: really needed?
+    _CS = 0;    //fixme: really needed?
+    _spi.write(0x70);   // write 0070
+    _spi.write(reg);    // write 16bit
+    _CS = 1;    //fixme: really needed?
+    _CS = 0;    //fixme: really needed?
+    _spi.write(0x73);   // write 0073
+    r |= _spi.write(0);    // read 16bit, 8bit dummy + 8bit valid
+    r <<= 16;
+    r |= _spi.write(0);    // read 16bit
+    
+    _CS = 1; //fixme: to resync, maybe really needed
+    _CS = 0; //fixme: to resync, maybe really needed
+    return (r>>8);
 }
 void SPI16::hw_reset()
 {
     wait_ms(15);
     _DC = 1;
- //   _CS = 1;
-    _CS = 0;
+    _CS = 1;
     _reset = 0;                        // display reset
-    wait_us(50);
+    wait_ms(2);
     _reset = 1;                       // end reset
-    wait_ms(15);
-#ifndef USE_CS
-    _CS=0;      // put CS low now and forever
-#endif
+    wait_ms(100);
 }
 void SPI16::BusEnable(bool enable)
 {

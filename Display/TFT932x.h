@@ -1,5 +1,5 @@
-#ifndef MBED_TFT_H
-#define MBED_TFT_H
+#ifndef MBED_TFT932x_H
+#define MBED_TFT932x_H
 
 #include "GraphicsDisplay.h"
 #include "PAR8.h"
@@ -9,9 +9,9 @@
 #include "Protocols.h"
 
 
-/** A common base class for color TFT Display
+/** A custom base class for ILI932x color TFT Display (except ILI9327 which is MIPI standard)
 */
-class TFT : public GraphicsDisplay
+class TFT932x : public GraphicsDisplay
 {
 
 public:         
@@ -19,12 +19,13 @@ public:
     /** Create a monochrome LCD Parallel interface
     * @param name The name used by the parent class to access the interface
     */
-    TFT(proto_t displayproto,PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const int lcdsize_x, const int lcdsize_y, const char* name);
+    TFT932x(proto_t displayproto,PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const int lcdsize_x, const int lcdsize_y, const char* name);
     
     /** Create a monochrome LCD SPI interface
+    * @note ILI9325D has different SPI protocol, not supported here
     * @param name The name used by the parent class to access the interface
     */
-    TFT(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const int lcdsize_x, const int lcdsize_y, const char* name);
+    TFT932x(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, const int lcdsize_x, const int lcdsize_y, const char* name);
     
     /////// functions that come for free, but can be overwritten///////////////////////////////////////////////////
 /////// ----------------------------------------------------///////////////////////////////////////////////////
@@ -121,14 +122,14 @@ public:
     */
     void FastWindow(bool enable);
     
-    /** Set scroll area boundaries
+    /** Enable scroll
     * scroll is done in hw but only on the native vertical axis
     * TFTs are mainly native protrait view, so horizontal scroll if rotated in landscape view
-    *
-    * @param startY boundary offset from top (or left if rotated), 0 for fullscreen scroll
-    * @param areasize size of the scroll area, 480 for fullscreen scroll of a 320x480 display
+    * @note ILI932x does not allow partial screen scrolling, only full screen is selectable
+    * @param startY unused, always 0 for ILI932x
+    * @param areasize unused, always screensize_Y for ILI932x
     */
-    void setscrollarea (int startY, int areasize);
+    void setscrollarea (int startY=0, int areasize=0);
     
     /** Scroll up(or left) the scrollarea
     * 
@@ -136,7 +137,7 @@ public:
     */
     void scroll (int lines);
     
-    /** Reset the scrollarea and display un-scrolled screen
+    /** Disable scroll and display un-scrolled screen
     *  
     */
     void scrollreset();
@@ -162,26 +163,34 @@ protected:
 ////// functions needed by parent class ///////////////////////////////////////
 ////// -------------------------------- ///////////////////////////////////////
 
-    /** Send 8bit command to display controller 
-    *
-    * @param cmd: byte to send  
-    * @note if protocol is SPI16, it will insert NOP cmd before, so if cmd is a 2byte cmd, the second cmd will be broken. Use wr_cmd16 for 2bytes cmds
+    /** ILI932x specific, does a dummy read cycle, number of bits is protocol dependent
+    * for PAR protocols: a signle RD bit toggle
+    * for SPI8: 8clocks
+    * for SPI16: 16 clocks
     */   
-    void wr_cmd8(unsigned char cmd);
+    virtual void dummyread ();
+
+    /** ILI932x specific, select register for a successive write or read
+    *
+    * @param reg register to be selected
+    * @param forread false = a write next (default), true = a read next
+    * @note forread only used by SPI protocols
+    */   
+    virtual void reg_select(unsigned char reg, bool forread =false);
+
+    /** ILI932x specific, write register with data
+    *
+    * @param reg register to write
+    * @param data 16bit data
+    */   
+    virtual void reg_write(unsigned char reg, unsigned short data);
     
-    /** Send 8bit data to display controller 
+    /** ILI932x specific, read register
     *
-    * @param data: byte to send   
-    *
-    */   
-    void wr_data8(unsigned char data);
-    
-    /** Send 2x8bit data to display controller 
-    *
-    * @param data: halfword to send   
-    *
-    */   
-    void wr_data16(unsigned short data);
+    * @param reg register to be read
+    * @returns 16bit register value
+    */ 
+    virtual unsigned short reg_read(unsigned char reg);
     
     /** Send 16bit pixeldata to display controller 
     *
@@ -212,21 +221,6 @@ protected:
     * @returns 16bit color
     */ 
     virtual unsigned short rd_gram();
-    
-    /** Read 4x8bit register data (with dummy cycle)
-    * @param reg the register to read
-    * @returns data as uint
-    * 
-    */ 
-    virtual unsigned int rd_reg_data32(unsigned char reg);
-    
-    /** Read 3x8bit ExtendedCommands register data
-    * @param reg the register to read
-    * @param SPIreadenablecmd vendor/device specific cmd to read EXTC registers
-    * @returns data as uint
-    * @note EXTC regs (0xB0 to 0xFF) are read/write registers but needs special cmd to be read in SPI mode
-    */ 
-    virtual unsigned int rd_extcreg_data32(unsigned char reg, unsigned char SPIreadenablecmd);
     
     /** HW reset sequence (without display init commands)   
     */
@@ -260,12 +254,10 @@ private:
     int win_y1;
     int win_y2;
     int orientation;
-    int topfixedareasize;
-    int scrollareasize;
-    bool useNOP;
+    bool dummycycles;
     bool usefastwindow;
     bool fastwindowready;
-    bool mipistd;
+    bool fastwindowready4read;
     bool is18bit;
     bool isBGR;
     

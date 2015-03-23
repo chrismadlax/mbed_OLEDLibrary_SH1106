@@ -68,7 +68,12 @@ public:
     */
     virtual void window(int x, int y, int w, int h);
     
-    
+    /** Read pixel color at location
+    * @param x is the horizontal offset to this pixel.
+    * @param y is the vertical offset to this pixel.
+    * @returns 16bit color, 0000=Black(pixel set), FFFF=White(pixel clear).
+    */
+    virtual unsigned short pixelread(int x, int y);
 
     /** Push a single pixel into the window and increment position.
     * You must first call window() then push pixels in loop.
@@ -139,15 +144,15 @@ public:
     */
     int sizeX();
 
-    /** get display X size in pixels (native, orientation independent)
-    * @returns screen height in pixels.
+    /** get display Y size in pixels (native, orientation independent)
+    * @returns Y size in pixels
     */
     int sizeY();
     
 ////////////////////////////////////////////////////////////////////////////////    
     // not implemented yet
 //////////////////////////////////////////////////////////////////
-    virtual unsigned short pixelread(int x, int y){return 0;};
+  //  virtual unsigned short pixelread(int x, int y){return 0;};
     virtual void window4read(int x, int y, int w, int h){};
     void setscrollarea (int startY, int areasize){};
     void scroll (int lines){};
