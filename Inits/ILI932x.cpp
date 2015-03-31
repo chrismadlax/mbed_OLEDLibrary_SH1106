@@ -24,6 +24,19 @@ ILI932x::ILI932x(proto_t displayproto, PortName port, PinName CS, PinName reset,
     cls();
     locate(0,0); 
 }
+ILI932x::ILI932x(proto_t displayproto, PinName* buspins, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const char *name , unsigned int LCDSIZE_X, unsigned  int LCDSIZE_Y)
+    : TFT932x(displayproto, buspins, CS, reset, DC, WR, RD, LCDSIZE_X, LCDSIZE_Y, name)
+{
+    hw_reset();
+    BusEnable(true);  //set CS low, will stay low untill manually set high with BusEnable(false);
+    identify(); // will collect tftID
+    if(tftID==0x9325) init9325();
+    auto_gram_read_format();// try to get read gram pixel format, could be 16bit or 18bit, RGB or BGR. Will set flags accordingly
+    set_orientation(0);
+    FastWindow(true); // most but not all controllers support this, even if datasheet tells they should. 
+    cls();
+    locate(0,0); 
+}
 ILI932x::ILI932x(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, const char *name, unsigned int LCDSIZE_X, unsigned  int LCDSIZE_Y)
     : TFT932x(displayproto, Hz, mosi, miso, sclk, CS, reset, LCDSIZE_X, LCDSIZE_Y, name)
 {

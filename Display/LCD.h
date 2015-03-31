@@ -4,6 +4,7 @@
 
 #include "GraphicsDisplay.h"
 #include "PAR8.h"
+#include "BUS8.h"
 #include "SPI8.h"
 #include "SPI16.h"
 #include "Protocols.h"
@@ -30,10 +31,15 @@ class LCD : public GraphicsDisplay
 
 public:         
           
-    /** Create a monochrome LCD Parallel interface
+    /** Create a monochrome LCD Parallel Port interface
     * @param name The name used by the parent class to access the interface
     */
     LCD(proto_t displayproto,PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const int lcdsize_x, const int lcdsize_y, const int ic_x_segs, const int ic_y_coms, const char* name);
+    
+    /** Create a monochrome LCD Parallel Bus interface
+    * @param name The name used by the parent class to access the interface
+    */
+    LCD(proto_t displayproto,PinName* buspins, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const int lcdsize_x, const int lcdsize_y, const int ic_x_segs, const int ic_y_coms, const char* name);
     
     /** Create a monochrome LCD SPI interface
     * @param name The name used by the parent class to access the interface

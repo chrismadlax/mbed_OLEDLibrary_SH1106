@@ -28,6 +28,16 @@ ST7565::ST7565(proto_t displayproto, PortName port, PinName CS, PinName reset, P
     set_orientation(1);
     locate(0,0);
 }
+ST7565::ST7565(proto_t displayproto, PinName* buspins, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const char *name, unsigned int LCDSIZE_X, unsigned  int LCDSIZE_Y)
+    : LCD(displayproto, buspins, CS, reset, DC, WR, RD, LCDSIZE_X, LCDSIZE_Y, IC_X_SEGS, IC_Y_COMS, name)
+{
+    hw_reset();
+    BusEnable(true);
+    init();
+    cls();
+    set_orientation(1);
+    locate(0,0);
+}
 ST7565::ST7565(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const char *name, unsigned int LCDSIZE_X, unsigned  int LCDSIZE_Y)
     : LCD(displayproto, Hz, mosi, miso, sclk, CS, reset, DC, LCDSIZE_X, LCDSIZE_Y, IC_X_SEGS, IC_Y_COMS, name)
 {

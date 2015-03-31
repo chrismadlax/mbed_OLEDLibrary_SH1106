@@ -4,6 +4,8 @@
 #include "GraphicsDisplay.h"
 #include "PAR8.h"
 #include "PAR16.h"
+#include "BUS8.h"
+#include "BUS16.h"
 #include "SPI8.h"
 #include "SPI16.h"
 #include "Protocols.h"
@@ -16,12 +18,17 @@ class TFT932x : public GraphicsDisplay
 
 public:         
           
-    /** Create a monochrome LCD Parallel interface
+    /** Create TFT Parallel Port interface
     * @param name The name used by the parent class to access the interface
     */
-    TFT932x(proto_t displayproto,PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const int lcdsize_x, const int lcdsize_y, const char* name);
+    TFT932x(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const int lcdsize_x, const int lcdsize_y, const char* name);
     
-    /** Create a monochrome LCD SPI interface
+    /** Create TFT Parallel Bus interface
+    * @param name The name used by the parent class to access the interface
+    */
+    TFT932x(proto_t displayproto, PinName* buspins, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const int lcdsize_x, const int lcdsize_y, const char* name);
+    
+    /** Create TFT SPI interface
     * @note ILI9325D has different SPI protocol, not supported here
     * @param name The name used by the parent class to access the interface
     */

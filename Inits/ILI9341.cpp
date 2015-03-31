@@ -29,6 +29,19 @@ ILI9341::ILI9341(proto_t displayproto, PortName port, PinName CS, PinName reset,
     FastWindow(true); // most but not all controllers support this, even if datasheet tells they should. 
     locate(0,0); 
 }
+ILI9341::ILI9341(proto_t displayproto, PinName* buspins, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const char *name, unsigned int LCDSIZE_X, unsigned  int LCDSIZE_Y)
+    : TFT(displayproto, buspins, CS, reset, DC, WR, RD, LCDSIZE_X, LCDSIZE_Y, name)
+{
+    hw_reset();
+    BusEnable(true);
+    identify(); // will collect tftID and set mipistd flag
+    init();
+    auto_gram_read_format();
+    set_orientation(0);
+    cls();
+    FastWindow(true); // most but not all controllers support this, even if datasheet tells they should. 
+    locate(0,0); 
+}
 ILI9341::ILI9341(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const char *name, unsigned int LCDSIZE_X , unsigned  int LCDSIZE_Y)
     : TFT(displayproto, Hz, mosi, miso, sclk, CS, reset, DC, LCDSIZE_X, LCDSIZE_Y, name)
 {

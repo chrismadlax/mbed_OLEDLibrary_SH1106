@@ -33,6 +33,33 @@ TFT932x::TFT932x(proto_t displayproto, PortName port, PinName CS, PinName reset,
   //  cls();
   //  locate(0,0);
 }
+TFT932x::TFT932x(proto_t displayproto, PinName* buspins, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const int lcdsize_x, const int lcdsize_y, const char *name)
+    : GraphicsDisplay(name), screensize_X(lcdsize_x), screensize_Y(lcdsize_y)
+{
+    if(displayproto==BUS_8)
+    {
+        PinName pins[16];
+        for(int i=0; i<16; i++) pins[i]=NC;
+        for(int i=0; i<8; i++) pins[i]=buspins[i];
+        proto = new BUS8(pins, CS, reset, DC, WR, RD);
+        dummycycles=1;
+    }
+    else if(displayproto==BUS_16)
+    {
+        proto = new BUS16(buspins, CS, reset, DC, WR, RD);
+        dummycycles=0;
+    }
+  //  set_orientation(0);
+    foreground(White);
+    background(Black);
+    set_auto_up(false); //we don't have framebuffer
+    usefastwindow=false;
+    fastwindowready=false;
+    is18bit=false;
+    isBGR=false;
+  //  cls();
+  //  locate(0,0);
+}
 TFT932x::TFT932x(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, const int lcdsize_x, const int lcdsize_y, const char *name)
     : GraphicsDisplay(name), screensize_X(lcdsize_x), screensize_Y(lcdsize_y)
 {

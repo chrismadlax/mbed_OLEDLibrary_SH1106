@@ -41,6 +41,28 @@ LCD::LCD(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName
   //  cls();
   //  locate(0,0);
 }
+LCD::LCD(proto_t displayproto, PinName* buspins, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const int lcdsize_x, const int lcdsize_y, const int ic_x_segs, const int ic_y_coms, const char *name)
+    : GraphicsDisplay(name), screensize_X(lcdsize_x), screensize_Y(lcdsize_y), _LCDPAGES(lcdsize_y>>3), _IC_X_SEGS(ic_x_segs), _IC_Y_COMS(ic_y_coms), _IC_PAGES(ic_y_coms>>3)
+{
+    if(displayproto==BUS_8)
+    {
+        PinName pins[16];
+        for(int i=0; i<16; i++) pins[i]=NC;
+        for(int i=0; i<8; i++) pins[i]=buspins[i];
+        proto = new BUS8(pins, CS, reset, DC, WR, RD);
+    }
+    useNOP=false;
+    buffer = (unsigned char*) malloc (screensize_X*_LCDPAGES);
+    buffer16 = (unsigned short*)buffer;
+    draw_mode = NORMAL;
+    set_orientation(1);
+    foreground(White);
+    background(Black);
+    set_auto_up(true);
+    tftID=0;
+  //  cls();
+  //  locate(0,0);
+}
 LCD::LCD(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const int lcdsize_x, const int lcdsize_y, const int ic_x_segs, const int ic_y_coms, const char *name)
     : GraphicsDisplay(name), screensize_X(lcdsize_x), screensize_Y(lcdsize_y), _LCDPAGES(lcdsize_y>>3), _IC_X_SEGS(ic_x_segs), _IC_Y_COMS(ic_y_coms), _IC_PAGES(ic_y_coms>>3)
 {
