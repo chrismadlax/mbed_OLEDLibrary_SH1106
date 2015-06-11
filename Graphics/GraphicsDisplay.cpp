@@ -32,6 +32,8 @@ GraphicsDisplay::GraphicsDisplay(const char *name):TextDisplay(name) {
     char_y = 0;
     oriented_width=0;
     oriented_height=0;
+    fontzoomver=1;
+    fontzoomhor=1;
     auto_up = true;
 }
     
@@ -244,13 +246,19 @@ void GraphicsDisplay::set_font(unsigned char* f, unsigned char firstascii, unsig
     firstch = firstascii;   // first ascii code present in font array (usually 32)
     lastch = lastascii;     // last ascii code present in font array (usually 127)
     fontprop=proportional;
+    set_font_zoom(1,1);
+}
+void GraphicsDisplay::set_font_zoom(unsigned char x_mul, unsigned char y_mul)
+{
+    fontzoomhor=((x_mul==0) ? 1:x_mul);
+    fontzoomver=((y_mul==0) ? 1:y_mul);
 }
 int GraphicsDisplay::_putc(int value)
 {
     if (value == '\n') {    // new line
         char_x = 0;
-        char_y = char_y + fontvert;
-        if (char_y >= oriented_height - fontvert) {
+        char_y = char_y + fontvert*fontzoomver;
+        if (char_y >= oriented_height - fontvert*fontzoomver) {
             char_y = 0;
         }
     } else {
@@ -265,7 +273,7 @@ void GraphicsDisplay::character(int x, int y, int c)
     char_y=y;
     int j,i,b;
     unsigned char* zeichen;
-    unsigned char z,w;
+    unsigned char z,w,v;
 
     if ((c < firstch) || (c > lastch)) return;   // test char range
 
@@ -275,36 +283,38 @@ void GraphicsDisplay::character(int x, int y, int c)
     vert = font[2];                      // get vert size of font
     bpl = font[3];                       // bytes per line
 */
-    if (char_x + fonthor > oriented_width) {
+    if (char_x + fonthor*fontzoomhor > oriented_width) {
         char_x = 0;
-        char_y = char_y + fontvert;
-        if (char_y > oriented_height - fontvert) {
+        char_y = char_y + fontvert*fontzoomver;
+        if (char_y > oriented_height - fontvert*fontzoomver) {
             char_y = 0;
         }
     }
-    window(char_x, char_y,fonthor,fontvert); // char box
+    window(char_x, char_y,fonthor*fontzoomhor,fontvert*fontzoomver); // char box
     zeichen = &font[((c-firstch) * fontoffset) + 4]; // start of char bitmap
     w = zeichen[0];                          // width of actual char
     // construct the char into the buffer
     for (j=0; j<fontvert; j++) {  //  vert line
+        for (v=0; v<fontzoomver; v++) { // repeat horiz line for vertical zooming
         for (i=0; i<fonthor; i++) {   //  horz line
             z =  zeichen[(fontbpl * i) + ((j & 0xF8) >> 3)+1];
             b = 1 << (j & 0x07);
             if (( z & b ) == 0x00) {
              //   pixel(char_x+i,char_y+j,0);
-                window_pushpixel(_background);
+                window_pushpixel(_background, fontzoomhor); //(color, howmany)
             } else {
             //    pixel(char_x+i,char_y+j,1);
-                window_pushpixel(_foreground);
+                window_pushpixel(_foreground, fontzoomhor);
             }
         }
+        } //for each zoomed vert
     }
     if(fontprop)
     {
-        if((w+1)<fonthor) char_x += w+1; // put at least 1 blank after variable-width characters, except characters that occupy whole fonthor space like "_"
-        else char_x += fonthor;
+        if((w+1)<fonthor) char_x += (w*fontzoomhor)+1; // put at least 1 blank after variable-width characters, except characters that occupy whole fonthor space like "_"
+        else char_x += fonthor*fontzoomhor;
     }
-    else char_x += fonthor; // fixed width
+    else char_x += fonthor*fontzoomhor; // fixed width
 }
 void GraphicsDisplay::Bitmap_BW(Bitmap_s bm, int x, int y)
 {

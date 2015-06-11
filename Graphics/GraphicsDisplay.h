@@ -277,6 +277,13 @@ public:
    *
    */  
   void set_font(unsigned char* f, unsigned char firstascii=32, unsigned char lastascii=127, bool proportional = true);
+  
+  /** Zoom fount
+   *
+   * @param x_mul horizontal size multiplier
+   * @param y_mul vertical size multiplier
+   */  
+  void set_font_zoom(unsigned char x_mul, unsigned char y_mul);
 
     /** Get the number of columns based on the currently active font.
     * @returns number of columns.
@@ -341,6 +348,8 @@ private:
     int  fonthor;   // hor size of font (char)
     int  fontvert;  // ver size of font (char)
     int fontbpl;   // bytes per line (char)
+    int fontzoomver; // size multiplier
+    int fontzoomhor; // size multiplier
     unsigned char firstch;  // first ascii code present in font array (usually 32)
     unsigned char lastch;   // last ascii code present in font array (usually 127)
     bool auto_up;  // autoupdate flag for LCD
