@@ -61,6 +61,7 @@ public:
 
     virtual void pixel(int x, int y, unsigned short color);
     virtual void window(int x, int y, int w, int h);
+    virtual void rect(int x0, int y0, int x1, int y1, unsigned short color) ;
     virtual void cls(void) ; // virtual
     virtual unsigned short pixelread(int x, int y);
     virtual void window4read(int x, int y, int w, int h);

@@ -139,21 +139,24 @@ void SEPS225::init()
     
     reg_write(CMD_OSC_CTL, 0x01) ;
     reg_write(CMD_CLOCK_DIV, 0x30) ;
-    reg_write(CMD_PRECHARGE_TIME_R, 0x03) ;
-    reg_write(CMD_PRECHARGE_TIME_G, 0x04) ;
-    reg_write(CMD_PRECHARGE_TIME_B, 0x05) ;
-//  reg_write(CMD_PRECHARGE_TIME_R, 0x0E) ;
-//  reg_write(CMD_PRECHARGE_TIME_G, 0x0E) ;
-//  reg_write(CMD_PRECHARGE_TIME_B, 0x0E) ;
-    reg_write(CMD_PRECHARGE_CURRENT_R, 0x0B) ;
-    reg_write(CMD_PRECHARGE_CURRENT_G, 0x0B) ;
-    reg_write(CMD_PRECHARGE_CURRENT_B, 0x0B) ;
-//  reg_write(CMD_DRIVING_CURRENT_R, 0x3E) ;
-//  reg_write(CMD_DRIVING_CURRENT_G, 0x32) ;
-//  reg_write(CMD_DRIVING_CURRENT_B, 0x3D) ;
-    reg_write(CMD_DRIVING_CURRENT_R, 0x0B) ;
-    reg_write(CMD_DRIVING_CURRENT_G, 0x0B) ;
-    reg_write(CMD_DRIVING_CURRENT_B, 0x0B) ;
+//    reg_write(CMD_PRECHARGE_TIME_R, 0x03) ;
+//    reg_write(CMD_PRECHARGE_TIME_G, 0x04) ;
+//    reg_write(CMD_PRECHARGE_TIME_B, 0x05) ;
+  reg_write(CMD_PRECHARGE_TIME_R, 0x0E) ;
+  reg_write(CMD_PRECHARGE_TIME_G, 0x0E) ;
+  reg_write(CMD_PRECHARGE_TIME_B, 0x0E) ;
+//    reg_write(CMD_PRECHARGE_CURRENT_R, 0x0B) ;
+//    reg_write(CMD_PRECHARGE_CURRENT_G, 0x0B) ;
+//    reg_write(CMD_PRECHARGE_CURRENT_B, 0x0B) ;
+    reg_write(CMD_PRECHARGE_CURRENT_R, 0x3E) ;
+    reg_write(CMD_PRECHARGE_CURRENT_G, 0x32) ;
+    reg_write(CMD_PRECHARGE_CURRENT_B, 0x3D) ;
+  reg_write(CMD_DRIVING_CURRENT_R, 0x3E) ;
+  reg_write(CMD_DRIVING_CURRENT_G, 0x32) ;
+  reg_write(CMD_DRIVING_CURRENT_B, 0x3D) ;
+//    reg_write(CMD_DRIVING_CURRENT_R, 0x0B) ;
+//    reg_write(CMD_DRIVING_CURRENT_G, 0x0B) ;
+//    reg_write(CMD_DRIVING_CURRENT_B, 0x0B) ;
     // Memory Write Mode
     // 16bit * 1 transfer mode, R[5], G[6], B[5]
     // H:Inc, V:Inc, Method:V
@@ -214,6 +217,8 @@ void SEPS225::window(int x, int y, int w, int h)
     reg_write(CMD_MX2_ADDR, x+w-1) ;
     reg_write(CMD_MY1_ADDR, y) ;
     reg_write(CMD_MY2_ADDR, y+h-1) ;
+    reg_write(CMD_MEMORY_ACCESS_POINTER_X, x) ;
+    reg_write(CMD_MEMORY_ACCESS_POINTER_Y, y) ;
 }
 
 void SEPS225::cls(void)
@@ -238,6 +243,30 @@ unsigned short SEPS225::pixelread(int x, int y)
     return(value) ;
 }
 
+void SEPS225::rect(int x0, int y0, int x1, int y1, unsigned short color)
+{
+    float interval = 0.01 ;
+//    window(x0, y0, x1-x0+1, y1-y0+1) ;
+    *_cs = 0 ;
+    wait(interval) ;
+    line(x0, y0, x1, y0, color) ;
+    *_cs = 1 ;
+    wait(interval) ;  
+    *_cs = 0 ;
+    line(x1, y0, x1, y1, color) ;
+    *_cs = 1 ;
+    wait(interval) ;
+    *_cs = 0 ;
+    line(x0, y0, x0, y1, color) ;
+    *_cs = 1 ;
+    wait(interval) ;
+    *_cs = 0 ;
+    line(x0, y1, x1, y1, color) ;
+    wait(interval) ;
+    *_cs = 1 ;
+//    *_cs = 1 ;
+}
+    
 void SEPS225::window4read(int x, int y, int w, int h)
 {
     //printf("SEPS225::window4read not implemented\n\r") ;
