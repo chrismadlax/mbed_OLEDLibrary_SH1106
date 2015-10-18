@@ -17,6 +17,9 @@
 
 /** Protocol types
 */
+#include "platform.h"
+
+#if DEVICE_PORTINOUT
 enum proto_t {
     PAR_8   /**< Parallel 8bit, port pins 0 to 7 */
     ,PAR_16 /**< Parallel 16bit, port pins 0 to 15 */
@@ -25,6 +28,14 @@ enum proto_t {
     ,SPI_8  /**< SPI 8bit */
     ,SPI_16 /**< SPI 16bit */
 };
+#else 
+enum proto_t {
+    BUS_8   /**< Parallel 8bit, scattered pins */
+    ,BUS_16   /**< Parallel 16bit, scattered pins */
+    ,SPI_8  /**< SPI 8bit */
+    ,SPI_16 /**< SPI 16bit */
+};
+#endif
 
 
 /** Abstract interface class for spi and parallel protocols

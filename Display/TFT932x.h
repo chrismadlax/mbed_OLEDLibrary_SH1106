@@ -2,8 +2,12 @@
 #define MBED_TFT932x_H
 
 #include "GraphicsDisplay.h"
+
+#if DEVICE_PORTINOUT
 #include "PAR8.h"
 #include "PAR16.h"
+#endif
+
 #include "BUS8.h"
 #include "BUS16.h"
 #include "SPI8.h"
@@ -18,10 +22,12 @@ class TFT932x : public GraphicsDisplay
 
 public:         
           
+#if DEVICE_PORTINOUT
     /** Create TFT Parallel Port interface
     * @param name The name used by the parent class to access the interface
     */
     TFT932x(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const int lcdsize_x, const int lcdsize_y, const char* name);
+#endif
     
     /** Create TFT Parallel Bus interface
     * @param name The name used by the parent class to access the interface

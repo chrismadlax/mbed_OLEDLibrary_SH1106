@@ -3,8 +3,8 @@
 
 #include "mbed.h"
 #include "TFT.h"
-#include "vt100.h"
-extern vt100 *tty ;
+//#include "vt100.h"    
+//extern vt100 *tty ;
  
 /** Class for SEPS225 Syncoam Co.,Ltd
  * 128 x 128 Dots, 262K Colors PM-OLED Display Driver and Controller

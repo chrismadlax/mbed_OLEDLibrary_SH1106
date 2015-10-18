@@ -15,6 +15,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#if DEVICE_PORTINOUT 
+ 
 #include "PAR16.h"
 
 PAR16::PAR16(PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD)
@@ -225,3 +227,5 @@ void PAR16::BusEnable(bool enable)
 {
     _CS = enable ? 0:1;
 }
+
+#endif

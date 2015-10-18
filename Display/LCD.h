@@ -3,7 +3,11 @@
 #define MBED_LCD_H
 
 #include "GraphicsDisplay.h"
+
+#if DEVICE_PORTINOUT
 #include "PAR8.h"
+#endif
+
 #include "BUS8.h"
 #include "SPI8.h"
 #include "SPI16.h"

@@ -2,8 +2,12 @@
 #define MBED_TFT_H
 
 #include "GraphicsDisplay.h"
+
+#if DEVICE_PORTINOUT
 #include "PAR8.h"
 #include "PAR16.h"
+#endif
+
 #include "BUS8.h"
 #include "BUS16.h"
 #include "SPI8.h"

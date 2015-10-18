@@ -9,6 +9,7 @@
 
 #define SWAP(a, b)  { a ^= b; b ^= a; a ^= b; }
 
+#if DEVICE_PORTINOUT
 TFT932x::TFT932x(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const int lcdsize_x, const int lcdsize_y, const char *name)
     : GraphicsDisplay(name), screensize_X(lcdsize_x), screensize_Y(lcdsize_y)
 {
@@ -33,6 +34,7 @@ TFT932x::TFT932x(proto_t displayproto, PortName port, PinName CS, PinName reset,
   //  cls();
   //  locate(0,0);
 }
+#endif
 TFT932x::TFT932x(proto_t displayproto, PinName* buspins, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const int lcdsize_x, const int lcdsize_y, const char *name)
     : GraphicsDisplay(name), screensize_X(lcdsize_x), screensize_Y(lcdsize_y)
 {

@@ -25,8 +25,10 @@
 TFT::TFT(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const int lcdsize_x, const int lcdsize_y, const char *name)
     : GraphicsDisplay(name), screensize_X(lcdsize_x), screensize_Y(lcdsize_y)
 {
+#if DEVICE_PORTINOUT    
     if(displayproto==PAR_8) proto = new PAR8(port, CS, reset, DC, WR, RD);
     else if(displayproto==PAR_16) proto = new PAR16(port, CS, reset, DC, WR, RD);
+#endif    
     useNOP=false;
     scrollbugfix=0;
     mipistd=false;

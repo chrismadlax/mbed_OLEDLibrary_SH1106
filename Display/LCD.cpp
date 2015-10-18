@@ -28,7 +28,9 @@
 LCD::LCD(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const int lcdsize_x, const int lcdsize_y, const int ic_x_segs, const int ic_y_coms, const char *name)
     : GraphicsDisplay(name), screensize_X(lcdsize_x), screensize_Y(lcdsize_y), _LCDPAGES(lcdsize_y>>3), _IC_X_SEGS(ic_x_segs), _IC_Y_COMS(ic_y_coms), _IC_PAGES(ic_y_coms>>3)
 {
+#if DEVICE_PORTINOUT
     if(displayproto==PAR_8) proto = new PAR8(port, CS, reset, DC, WR, RD);
+#endif    
     useNOP=false;
     buffer = (unsigned char*) malloc (screensize_X*_LCDPAGES);
     buffer16 = (unsigned short*)buffer;

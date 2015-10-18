@@ -1,3 +1,5 @@
+#if DEVICE_PORTINOUT
+
 #ifndef PAR8_H
 #define PAR8_H
 
@@ -146,4 +148,6 @@ private:
     DigitalOut _RD;
   
 };
+#endif
+
 #endif

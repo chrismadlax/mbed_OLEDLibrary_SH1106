@@ -15,6 +15,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#if DEVICE_PORTINOUT 
  
 #include "PAR8.h"
 
@@ -273,3 +274,5 @@ void PAR8::BusEnable(bool enable)
 {
     _CS = enable ? 0:1;
 }
+
+#endif
