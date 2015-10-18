@@ -4,8 +4,12 @@
 
 //GLCD FontName : Terminal6x8
 //GLCD FontSize : 6 x 8
+#ifdef TOOLCHAIN_GCC
+const unsigned char Terminal6x8[] __attribute__((aligned (2))) = {
+#else
 __align(2)
 const unsigned char Terminal6x8[] = {
+#endif		
 		0xFF/*unused*/,6,8,0xFF/*unused*/,
         0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // Code for char  
         0x05, 0x00, 0x00, 0x06, 0x5F, 0x06, 0x00,  // Code for char !
