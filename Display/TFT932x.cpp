@@ -2,8 +2,14 @@
  * Copyright (c) 2015 Giuliano Dianda
  * Released under the MIT License: http://mbed.org/license/mit
  */
-
+ 
+#include "platform.h"
 #include "TFT932x.h"
+
+#if DEVICE_PORTINOUT
+#include "PAR8.h"
+#include "PAR16.h"
+#endif
 
 //#include "mbed_debug.h"
 
@@ -35,6 +41,7 @@ TFT932x::TFT932x(proto_t displayproto, PortName port, PinName CS, PinName reset,
   //  locate(0,0);
 }
 #endif
+
 TFT932x::TFT932x(proto_t displayproto, PinName* buspins, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const int lcdsize_x, const int lcdsize_y, const char *name)
     : GraphicsDisplay(name), screensize_X(lcdsize_x), screensize_Y(lcdsize_y)
 {

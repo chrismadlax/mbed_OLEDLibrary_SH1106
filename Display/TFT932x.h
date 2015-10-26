@@ -1,8 +1,6 @@
 #ifndef MBED_TFT932x_H
 #define MBED_TFT932x_H
 
-#include "GraphicsDisplay.h"
-
 #if DEVICE_PORTINOUT
 #include "PAR8.h"
 #include "PAR16.h"
@@ -14,6 +12,7 @@
 #include "SPI16.h"
 #include "Protocols.h"
 
+#include "GraphicsDisplay.h"
 
 /** A custom base class for ILI932x color TFT Display (except ILI9327 which is MIPI standard)
 */

@@ -22,13 +22,12 @@
 
 #define SWAP(a, b)  { a ^= b; b ^= a; a ^= b; }
 
+#if DEVICE_PORTINOUT 
 TFT::TFT(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const int lcdsize_x, const int lcdsize_y, const char *name)
     : GraphicsDisplay(name), screensize_X(lcdsize_x), screensize_Y(lcdsize_y)
 {
-#if DEVICE_PORTINOUT    
     if(displayproto==PAR_8) proto = new PAR8(port, CS, reset, DC, WR, RD);
-    else if(displayproto==PAR_16) proto = new PAR16(port, CS, reset, DC, WR, RD);
-#endif    
+    else if(displayproto==PAR_16) proto = new PAR16(port, CS, reset, DC, WR, RD);   
     useNOP=false;
     scrollbugfix=0;
     mipistd=false;
@@ -45,6 +44,8 @@ TFT::TFT(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName
   //  cls();
   //  locate(0,0);
 }
+#endif 
+
 TFT::TFT(proto_t displayproto, PinName* buspins, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const int lcdsize_x, const int lcdsize_y, const char *name)
     : GraphicsDisplay(name), screensize_X(lcdsize_x), screensize_Y(lcdsize_y)
 {

@@ -1,10 +1,10 @@
-#if DEVICE_PORTINOUT
-
 #ifndef PAR8_H
 #define PAR8_H
 
 #include "mbed.h"
 #include "Protocols.h"
+
+#if DEVICE_PORTINOUT
 //#include "GraphicsDisplay.h"
 
 /** Parallel 8bit interface

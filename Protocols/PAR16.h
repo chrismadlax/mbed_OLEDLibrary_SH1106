@@ -1,10 +1,11 @@
-#if DEVICE_PORTINOUT
-
 #ifndef PAR16_H
 #define PAR16_H
 
 #include "mbed.h"
 #include "Protocols.h"
+
+#if DEVICE_PORTINOUT
+
 //#include "GraphicsDisplay.h"
 
 /** Parallel 16bit interface

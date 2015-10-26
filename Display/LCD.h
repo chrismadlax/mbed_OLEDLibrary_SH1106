@@ -2,16 +2,17 @@
 #ifndef MBED_LCD_H
 #define MBED_LCD_H
 
-#include "GraphicsDisplay.h"
-
 #if DEVICE_PORTINOUT
 #include "PAR8.h"
+#include "PAR16.h"
 #endif
 
 #include "BUS8.h"
 #include "SPI8.h"
 #include "SPI16.h"
 #include "Protocols.h"
+
+#include "GraphicsDisplay.h"
 
 // undefine the KL43Z and KL46Z LCD macro
 #ifdef LCD
