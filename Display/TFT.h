@@ -254,6 +254,7 @@ protected:
     virtual void identify();
     
     unsigned int scrollbugfix;
+    bool mipistd;
     
     
     
@@ -276,7 +277,6 @@ private:
     bool useNOP;
     bool usefastwindow;
     bool fastwindowready;
-    bool mipistd;
     bool is18bit;
     bool isBGR;
     

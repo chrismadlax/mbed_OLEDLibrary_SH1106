@@ -1,6 +1,8 @@
 #ifndef SPI16_H
 #define SPI16_H
 
+#define NDEBUG // avoid MBED_ASSERT to halt process when PinName DC==NC
+
 #include "mbed.h"
 #include "Protocols.h"
 //#include "GraphicsDisplay.h"
