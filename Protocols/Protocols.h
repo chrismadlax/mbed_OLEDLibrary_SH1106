@@ -13,6 +13,10 @@
 #define RGB24to16(r,g,b)  (((r&0xF8)<<8)|((g&0xFC)<<3)|((b&0xF8)>>3)) //5 red | 6 green | 5 blue
 #define BGR2RGB(color) (((color&0x1F)<<11) | (color&0x7E0) | ((color&0xF800)>>11))
 
+#define FLIP_NONE   0
+#define FLIP_X      1
+#define FLIP_Y      2
+
 //#define USE_CS
 
 /** Protocol types

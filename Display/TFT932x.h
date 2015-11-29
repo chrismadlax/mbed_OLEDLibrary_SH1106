@@ -249,6 +249,7 @@ protected:
     virtual void identify();
     
     unsigned int scrollbugfix;
+    unsigned char flipped;
     
     
     

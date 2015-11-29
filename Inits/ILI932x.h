@@ -65,8 +65,7 @@ protected:
     /** Init command sequence  
     */
     void init9325();
-
-
+    void init9320();
 
 };
 #endif

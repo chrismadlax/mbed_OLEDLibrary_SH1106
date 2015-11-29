@@ -37,6 +37,7 @@ TFT932x::TFT932x(proto_t displayproto, PortName port, PinName CS, PinName reset,
     fastwindowready=false;
     is18bit=false;
     isBGR=false;
+    flipped=0;
   //  cls();
   //  locate(0,0);
 }
@@ -66,6 +67,7 @@ TFT932x::TFT932x(proto_t displayproto, PinName* buspins, PinName CS, PinName res
     fastwindowready=false;
     is18bit=false;
     isBGR=false;
+    flipped=0;
   //  cls();
   //  locate(0,0);
 }
@@ -90,6 +92,7 @@ TFT932x::TFT932x(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinNa
     fastwindowready=false;
     is18bit=false;
     isBGR=false;
+    flipped=0;
   //  locate(0,0);
 }
 // dummy read needed before read gram
@@ -161,29 +164,29 @@ void TFT932x::set_orientation(int o)
     // ORG bit set for all modes
     {
         case 0:// default, portrait view 0°
-            reg_write(0x0001,0x0100); // S720 to S1
-            reg_write(0x0060,0xA700); // G320 to G1
+            reg_write(0x0001,((flipped&FLIP_X)==0) ? 0x0100:0x0000); // S720toS1 or S1toS720
+            reg_write(0x0060,((flipped&FLIP_Y)==0) ? 0xA700:0x2700); // G320toG1 or G1toG320
             reg_write(0x03, 0x10B0);
             set_width(screensize_X);
             set_height(screensize_Y);
             break;
         case 1:// landscape view +90°
-            reg_write(0x0001,0x0000); // S1 to S720
-            reg_write(0x0060,0xA700); // G320 to G1
+            reg_write(0x0001,((flipped&FLIP_X)==0) ? 0x0000:0x0100); // S1toS720 or S720toS1
+            reg_write(0x0060,((flipped&FLIP_Y)==0) ? 0xA700:0x2700); // G320toG1 or G1toG320
             reg_write(0x03, 0x10B8); // AM=1 increase addr ctr first vertically then horizontally
             set_width(screensize_Y);
             set_height(screensize_X);
             break;
         case 2:// portrait view +180°
-            reg_write(0x0001,0x0000); // S1 to S720
-            reg_write(0x0060,0x2700); // G1 to G320
+            reg_write(0x0001,((flipped&FLIP_X)==0) ? 0x0000:0x0100); // S1toS720 or S720toS1
+            reg_write(0x0060,((flipped&FLIP_Y)==0) ? 0x2700:0xA700); // G1toG320 or G320toG1
             reg_write(0x03, 0x10B0);
             set_width(screensize_X);
             set_height(screensize_Y);
             break;
         case 3:// landscape view -90°
-            reg_write(0x0001,0x0100); // S720 to S1
-            reg_write(0x0060,0x2700); // G1 to G320
+            reg_write(0x0001,((flipped&FLIP_X)==0) ? 0x0100:0x0000); // S720toS1 or S1toS720
+            reg_write(0x0060,((flipped&FLIP_Y)==0) ? 0x2700:0xA700); // G1toG320 or G320toG1
             reg_write(0x03, 0x10B8); // AM=1 increase addr ctr first vertically then horizontally
             set_width(screensize_Y);
             set_height(screensize_X);
