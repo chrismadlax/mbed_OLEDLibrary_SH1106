@@ -75,8 +75,8 @@
 #define COLOR_BLACK   0x0000
 #define COLOR_WHITE   0xFFFF
 
-#define OLED_WIDTH   0x7F
-#define OLED_HEIGHT  0x7F
+#define OLED_WIDTH   0x80
+#define OLED_HEIGHT  0x80
 
 #endif /* OLED_LCD_REG_H_ */
 
