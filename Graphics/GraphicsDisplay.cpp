@@ -275,8 +275,6 @@ void GraphicsDisplay::character(int x, int y, int c)
     unsigned char* zeichen;
     unsigned char z,w,v;
 
-    if ((c < firstch) || (c > lastch)) return;   // test char range
-
  /*   // read font parameter from start of array
     offset = font[0];                    // bytes / char
     hor = font[1];                       // get hor size of font
@@ -291,23 +289,30 @@ void GraphicsDisplay::character(int x, int y, int c)
         }
     }
     window(char_x, char_y,fonthor*fontzoomhor,fontvert*fontzoomver); // char box
-    zeichen = &font[((c-firstch) * fontoffset) + 4]; // start of char bitmap
-    w = zeichen[0];                          // width of actual char
-    // construct the char into the buffer
-    for (j=0; j<fontvert; j++) {  //  vert line
-        for (v=0; v<fontzoomver; v++) { // repeat horiz line for vertical zooming
-        for (i=0; i<fonthor; i++) {   //  horz line
-            z =  zeichen[(fontbpl * i) + ((j & 0xF8) >> 3)+1];
-            b = 1 << (j & 0x07);
-            if (( z & b ) == 0x00) {
-             //   pixel(char_x+i,char_y+j,0);
-                window_pushpixel(_background, fontzoomhor); //(color, howmany)
-            } else {
-            //    pixel(char_x+i,char_y+j,1);
-                window_pushpixel(_foreground, fontzoomhor);
-            }
-        }
-        } //for each zoomed vert
+    if ((c < firstch) || (c > lastch)) {   // test char range - if not exist fill with blank
+         for (i = 0; i < fonthor*fontvert*fontzoomver;i++){
+          window_pushpixel(_background, fontzoomhor); //(color, howmany) 
+          }
+    }
+    else{
+        zeichen = &font[((c-firstch) * fontoffset) + 4]; // start of char bitmap
+        w = zeichen[0];                          // width of actual char
+        // construct the char into the buffer
+        for (j=0; j<fontvert; j++) {  //  vert line
+            for (v=0; v<fontzoomver; v++) { // repeat horiz line for vertical zooming
+              for (i=0; i<fonthor; i++) {   //  horz line
+                z =  zeichen[(fontbpl * i) + ((j & 0xF8) >> 3)+1];
+                b = 1 << (j & 0x07);
+                if (( z & b ) == 0x00) {
+                //   pixel(char_x+i,char_y+j,0);
+                    window_pushpixel(_background, fontzoomhor); //(color, howmany)
+                } else {
+                //    pixel(char_x+i,char_y+j,1);
+                    window_pushpixel(_foreground, fontzoomhor);
+                }
+              }
+            } //for each zoomed vert
+         }
     }
     if(fontprop)
     {
