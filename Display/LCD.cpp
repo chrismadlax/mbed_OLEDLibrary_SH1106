@@ -95,6 +95,24 @@ LCD::LCD(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk,
   //  locate(0,0);
 
 }
+LCD::LCD(proto_t displayproto, int Hz, int address, PinName sda, PinName scl, const int lcdsize_x, const int lcdsize_y, const int ic_x_segs, const int ic_y_coms, const char* name)
+    : GraphicsDisplay(name), screensize_X(lcdsize_x), screensize_Y(lcdsize_y), _LCDPAGES(lcdsize_y>>3), _IC_X_SEGS(ic_x_segs), _IC_Y_COMS(ic_y_coms), _IC_PAGES(ic_y_coms>>3) 
+{
+    if(displayproto==I2C_){
+        proto = new I2C_bus(Hz,address,sda,scl);
+        useNOP=false;
+        }
+    buffer = (unsigned char*) malloc (screensize_X*_LCDPAGES);
+    buffer16 = (unsigned short*)buffer;
+    draw_mode = NORMAL;
+  //  cls();
+    set_orientation(1);
+    foreground(White);
+    background(Black);
+    set_auto_up(true);
+    tftID=0;
+}
+        
 LCD::~LCD()
 {
     free(buffer);

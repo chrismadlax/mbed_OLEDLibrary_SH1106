@@ -10,6 +10,7 @@
 #include "BUS8.h"
 #include "SPI8.h"
 #include "SPI16.h"
+#include "I2C_bus.h"
 #include "Protocols.h"
 
 #include "GraphicsDisplay.h"
@@ -50,6 +51,12 @@ public:
     * @param name The name used by the parent class to access the interface
     */
     LCD(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const int lcdsize_x, const int lcdsize_y, const int ic_x_segs, const int ic_y_coms, const char* name);
+    
+    /** Create a monochrome LCD I2C interface
+    * @param name The name used by the parent class to access the interface
+    */
+    LCD(proto_t displayproto, int Hz, int address,PinName sda, PinName scl, const int lcdsize_x, const int lcdsize_y, const int ic_x_segs, const int ic_y_coms, const char* name);
+    
     
     /** Destructor
     * will free framebuffer

@@ -41,6 +41,20 @@ class SSD1306 : public LCD
     */ 
     SSD1306(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const char* name , unsigned int LCDSIZE_X = 128, unsigned  int LCDSIZE_Y = 64);
 
+    /** Create an I2C display interface
+    * @param displayproto I2C_
+    * @param Hz I2C speed in Hz
+    * @param address I2C address
+    * @param sda I2C pin
+    * @param scl I2C pin
+    * @param name The name used by the parent class to access the interface
+    * @param LCDSIZE_X x size in pixel - optional
+    * @param LCDSIZE_Y y size in pixel - optional
+    */ 
+    SSD1306(proto_t displayproto, int Hz, int address, PinName sda, PinName scl, const char* name , unsigned int LCDSIZE_X = 128, unsigned  int LCDSIZE_Y = 64);
+
+
+
     /** set the contrast of the screen
       * @note here overrided because of not standard value range
       * @param o contrast 0-255

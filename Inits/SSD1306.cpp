@@ -56,6 +56,17 @@ SSD1306::SSD1306(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinNa
     set_orientation(1);
     locate(0,0);
 }
+
+SSD1306::SSD1306(proto_t displayproto, int Hz, int address, PinName sda, PinName scl, const char* name , unsigned int LCDSIZE_X, unsigned  int LCDSIZE_Y)
+    : LCD(displayproto, Hz, address, sda, scl, LCDSIZE_X, LCDSIZE_Y, IC_X_SEGS, IC_Y_COMS, name)
+{
+    init();
+    cls();
+    set_orientation(1);
+    locate(0,0);
+}
+
+
 // reset and init the lcd controller
 void SSD1306::init()
 {

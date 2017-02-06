@@ -31,6 +31,7 @@ enum proto_t {
     ,BUS_16   /**< Parallel 16bit, scattered pins */
     ,SPI_8  /**< SPI 8bit */
     ,SPI_16 /**< SPI 16bit */
+    ,I2C_   /**< I2C */
 };
 #else 
 enum proto_t {
@@ -38,6 +39,7 @@ enum proto_t {
     ,BUS_16   /**< Parallel 16bit, scattered pins */
     ,SPI_8  /**< SPI 8bit */
     ,SPI_16 /**< SPI 16bit */
+    ,I2C_   /**< I2C */
 };
 #endif
 
