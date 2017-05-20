@@ -240,8 +240,6 @@ protected:
 private:
 
     Protocols* proto;
-    unsigned char *buffer;
-    unsigned short *buffer16;
     const int screensize_X;
     const int screensize_Y;
     const int _LCDPAGES;
@@ -261,6 +259,10 @@ private:
     int win_y2;
     int orientation;
     bool useNOP;
+
+public:    
+    unsigned char *buffer;
+    unsigned short *buffer16;   
 };
 
 #endif

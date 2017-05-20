@@ -290,8 +290,19 @@ void LCD::pixel(int x, int y, unsigned short color)
     // first check parameter
     if((x >= screensize_X) || (y >= screensize_Y)) return;
 
-    if(color) buffer[(x + ((y>>3)*screensize_X))^1] &= ~(1 << (y&7));  // erase pixel
-    else buffer[(x + ((y>>3)*screensize_X))^1] |= (1 << (y&7));   //Black=0000, set pixel
+    //if(color) buffer[(x + ((y>>3)*screensize_X))^1] &= ~(1 << (y&7));   // erase pixel
+    //else      buffer[(x + ((y>>3)*screensize_X))^1] |=  (1 << (y&7));   //Black=0000, set pixel
+    
+    //if(color) buffer[(x + y*16)] &= ~(1 << (7-(x&7)));  // erase pixel
+    //else      buffer[(x + y*16)] |=  (1 << (7-(x&7)));   //Black=0000, set pixel
+    
+    if (color) {buffer[(x>>3)+(y*16)]&=  ~(1 << (7-(x&7)));}
+    else       {buffer[(x>>3)+(y*16)]|=   (1 << (7-(x&7)));}
+    
+    //buffer[0]=0xFF;
+    //buffer[16]=0xAA;
+    //buffer[1023]=0xFF;
+
 }
 unsigned short LCD::pixelread(int x, int y)
 {

@@ -1,0 +1,104 @@
+#ifndef MBED_ST7920_H
+#define MBED_ST7920_H
+
+#include "mbed.h"
+#include "LCD.h"
+
+/** Class for ST7920 and similar display controllers
+* to be copypasted and adapted for other controllers
+*/
+class ST7920 : public LCD
+{
+
+public:
+
+    /** Create a PAR display interface
+    * @param displayproto only supports PAR_8
+    * @param port GPIO port name to use
+    * @param CS pin connected to CS of display
+    * @param reset pin connected to RESET of display
+    * @param DC pin connected to data/command of display
+    * @param WR pin connected to SDI of display
+    * @param RD pin connected to RS of display
+    * @param name The name used by the parent class to access the interface
+    * @param LCDSIZE_X x size in pixel - optional
+    * @param LCDSIZE_Y y size in pixel - optional
+    */
+    ST7920(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const char* name, unsigned int LCDSIZE_X = 132, unsigned  int LCDSIZE_Y = 64);
+
+    /** Create a BUS display interface
+    * @param displayproto only supports BUS_8
+    * @param buspins array of PinName to group as Bus
+    * @param CS pin connected to CS of display
+    * @param reset pin connected to RESET of display
+    * @param DC pin connected to data/command of display
+    * @param WR pin connected to SDI of display
+    * @param RD pin connected to RS of display
+    * @param name The name used by the parent class to access the interface
+    * @param LCDSIZE_X x size in pixel - optional
+    * @param LCDSIZE_Y y size in pixel - optional
+    */
+    ST7920(proto_t displayproto, PinName* buspins, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const char* name, unsigned int LCDSIZE_X = 132, unsigned  int LCDSIZE_Y = 64);
+
+    /** Create an SPI display interface
+    * @param displayproto SPI_8 or SPI_16
+    * @param Hz SPI speed in Hz
+    * @param mosi SPI pin
+    * @param miso SPI pin
+    * @param sclk SPI pin
+    * @param CS pin connected to CS of display
+    * @param reset pin connected to RESET of display
+    * @param DC pin connected to data/command of display
+    * @param name The name used by the parent class to access the interface
+    * @param LCDSIZE_X x size in pixel - optional
+    * @param LCDSIZE_Y y size in pixel - optional
+    */
+    ST7920(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const char* name, unsigned int LCDSIZE_X = 132, unsigned  int LCDSIZE_Y = 64);
+
+
+
+protected:
+
+    //WriteInstructionRegister IR
+    void wir(unsigned char data);
+
+    //WriteDataRegister DR
+    void wdr(unsigned char data);
+
+    /** Init command sequence
+    */
+    void init();
+
+public:
+    /** Mirror
+    */
+    virtual void mirrorXY(mirror_t mode);
+
+    virtual void cls(void);
+
+    virtual void copy_to_lcd(void);
+    
+    virtual void set_contrast(int o);
+    
+    void invert(unsigned char o);
+    
+    virtual void wr_grambuf(unsigned short* data, unsigned int lenght);
+    
+    virtual void wr_gram(unsigned short data);
+    
+    virtual void wr_gram(unsigned short data, unsigned int count);
+    
+    virtual void wr_data16(unsigned short data);
+    
+    virtual void wr_cmd16(unsigned short cmd);
+    
+    virtual void wr_cmd8(unsigned char cmd);
+    
+    virtual unsigned short rd_gram(bool convert);
+    
+    virtual unsigned int rd_reg_data32(unsigned char reg);
+    
+    virtual unsigned int rd_extcreg_data32(unsigned char reg, unsigned char SPIreadenablecmd);
+
+};
+#endif
