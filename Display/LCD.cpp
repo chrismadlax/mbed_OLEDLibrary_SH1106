@@ -93,7 +93,6 @@ LCD::LCD(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk,
     set_auto_up(true);
     tftID=0;
   //  locate(0,0);
-
 }
 LCD::LCD(proto_t displayproto, int Hz, int address, PinName sda, PinName scl, const int lcdsize_x, const int lcdsize_y, const int ic_x_segs, const int ic_y_coms, const char* name)
     : GraphicsDisplay(name), screensize_X(lcdsize_x), screensize_Y(lcdsize_y), _LCDPAGES(lcdsize_y>>3), _IC_X_SEGS(ic_x_segs), _IC_Y_COMS(ic_y_coms), _IC_PAGES(ic_y_coms>>3) 
@@ -290,14 +289,9 @@ void LCD::pixel(int x, int y, unsigned short color)
     // first check parameter
     if((x >= screensize_X) || (y >= screensize_Y)) return;
 
-    //if(color) buffer[(x + ((y>>3)*screensize_X))^1] &= ~(1 << (y&7));   // erase pixel
-    //else      buffer[(x + ((y>>3)*screensize_X))^1] |=  (1 << (y&7));   //Black=0000, set pixel
-    
-    //if(color) buffer[(x + y*16)] &= ~(1 << (7-(x&7)));  // erase pixel
-    //else      buffer[(x + y*16)] |=  (1 << (7-(x&7)));   //Black=0000, set pixel
-    
-    if (color) {buffer[(x>>3)+(y*16)]&=  ~(1 << (7-(x&7)));}
-    else       {buffer[(x>>3)+(y*16)]|=   (1 << (7-(x&7)));}
+   
+    if (color) {buffer[(x>>3)+(y*_IC_X_SEGS>>4)]&=  ~(1 << (7-(x&7)));}
+    else       {buffer[(x>>3)+(y*_IC_X_SEGS>>4)]|=   (1 << (7-(x&7)));}
     
     //buffer[0]=0xFF;
     //buffer[16]=0xAA;
@@ -310,7 +304,8 @@ unsigned short LCD::pixelread(int x, int y)
     // first check parameter
     if((x >= screensize_X) || (y >= screensize_Y)) return 0;
     
-    if((buffer[(x + ((y>>3)*screensize_X))^1] & (1 << (y&7)))==0) return 0xFFFF ;  // pixel not set, White
+    
+    if((buffer[(x>>3)+(y*_IC_X_SEGS>>4)] & (1 << (7-(x&7))))==0) return 0xFFFF ;  // pixel not set, White
     else return 0; // pixel set, Black
 }
 void LCD::copy_to_lcd(void)

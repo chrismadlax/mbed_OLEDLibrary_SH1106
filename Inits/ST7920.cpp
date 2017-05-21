@@ -1,4 +1,5 @@
 /* mbed UniGraphic library - Device specific class
+* for ST7920 by Karl Zweimueller https://developer.mbed.org/users/charly/
 * Copyright (c) 2015 Giuliano Dianda
 * Released under the MIT License: http://mbed.org/license/mit
 */
@@ -10,14 +11,9 @@
 //////////////////////////////////////////////////////////////////////////////////
 // display settings ///////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////
-//#define IC_X_SEGS    132 // ST7920 SEG has range 0-131 (131-0 if ADC=1), check your datasheet, important for the orientation
-//#define IC_Y_COMS    64  // ST7920 COM has range 0-63 (63-0 if SHL=1), check your datasheet, important for the orientation
-#define IC_X_SEGS    256 // ST7920 SEG has range 0-131 (131-0 if ADC=1), check your datasheet, important for the orientation
-#define IC_Y_COMS    32  // ST7920 COM has range 0-63 (63-0 if SHL=1), check your datasheet, important for the orientation
-
-// put in constructor
-//#define LCDSIZE_X       128 // display X pixels
-//#define LCDSIZE_Y       64  // display Y pixels
+#define IC_X_SEGS    256 // ST7920 SEG has range 64-256
+#define IC_Y_COMS    32  // ST7920 COM has 32 COMS fix
+// see ST7920_v4.0 page 1/49
 
 
 
@@ -88,13 +84,16 @@ void ST7920::wdr(unsigned char data)
 }
 
 
-// reset and init the lcd controller
+// init the lcd controller
 // init sequence is manufacturer specific
 void ST7920::init()
 {
     /* Start Initial Sequence ----------------------------------------------------*/
     wait_ms(40);
 
+    // this is for a 128x64 LCD with SPI.
+    // parallel-mode not implemented!
+    
     //Function set [DL=1 8-bit interface; DL=0 4-bit interface;
     //              RE=1: extended instruction; RE=0: basic instruction]
     // RS RW DB7 DB6 DB5 DB4 DB3 DB2 DB1 DB0
@@ -137,6 +136,7 @@ void ST7920::init()
 
 void ST7920::mirrorXY(mirror_t mode)
 {
+    //not supported by hardware
 }
 
 void ST7920::cls(void)
@@ -149,6 +149,7 @@ void ST7920::cls(void)
     memset(buffer,0x00,sizeX()*(sizeY()>>3));  // clear display buffer
 }
 
+// write the full screenbuffer to the LCD GDRAM
 void ST7920::copy_to_lcd(void)
 {
     int i,j;
@@ -164,13 +165,13 @@ void ST7920::copy_to_lcd(void)
         wir(0x80);
 
         //write 16 Double-Bytes of data
-        //upper part
+        //upper part of Display
         for (j=0; j<8; j++) {
             wdr(buffer[(i*16) + (j*2)]);
             wdr(buffer[(i*16) + (j*2) +1]);
             //if (i==0) {wdr(0xAA); wdr(0xAA);}else {wdr(0x00); wdr(0x00);};
         }
-        //lower part
+        //lower part of Display
         for (j=0; j<8; j++) {
             wdr(buffer[(i*16)+512 + (j*2)]);
             wdr(buffer[(i*16)+512 + (j*2) +1]);
@@ -226,47 +227,58 @@ void ST7920::copy_to_lcd(void)
 
 void ST7920::set_contrast(int o)
 {
+    //not supported by hardware
 }
 
 void ST7920::invert(unsigned char o)
 {
+    //not supported by hardware
 }
 
 void ST7920::wr_grambuf(unsigned short* data, unsigned int lenght)
 {
+    // not needed, not supported
 }
 
 void ST7920::wr_gram(unsigned short data)
 {
+    // not needed, not supported
 }
 
 void ST7920::wr_gram(unsigned short data, unsigned int count)
 {
+    // not needed, not supported
 }
 
 void ST7920::wr_data16(unsigned short data)
 {
+    // not needed, not supported
 }
 
 void ST7920::wr_cmd16(unsigned short cmd)
 {
+    // not needed, not supported
 }
 
 void ST7920::wr_cmd8(unsigned char cmd)
 {
+    // not needed, not supported
 }
 
 unsigned short ST7920::rd_gram(bool convert)
 {
+    // not needed, not supported
     return(0);
 }
 
 unsigned int ST7920::rd_reg_data32(unsigned char reg)
 {
+    // not needed, not supported
     return(0);
 }
 
 unsigned int ST7920::rd_extcreg_data32(unsigned char reg, unsigned char SPIreadenablecmd)
 {
+    // not needed, not supported
     return(0);
 }

@@ -465,7 +465,10 @@ void GraphicsDisplay::cls (void)
 }
 void GraphicsDisplay::set_auto_up(bool up)
 {
-    if(up) auto_up = true;
+    if(up) {
+        auto_up = true;
+        copy_to_lcd();
+        }
     else auto_up = false;
 }
 bool GraphicsDisplay::get_auto_up(void)
