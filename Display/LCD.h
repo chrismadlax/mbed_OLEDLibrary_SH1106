@@ -55,7 +55,7 @@ public:
     /** Create a monochrome LCD I2C interface
     * @param name The name used by the parent class to access the interface
     */
-    LCD(proto_t displayproto, int Hz, int address,PinName sda, PinName scl, const int lcdsize_x, const int lcdsize_y, const int ic_x_segs, const int ic_y_coms, const char* name);
+    LCD(proto_t displayproto, int Hz, int address,PinName sda, PinName scl, PinName reset, const int lcdsize_x, const int lcdsize_y, const int ic_x_segs, const int ic_y_coms, const char* name);
     
     
     /** Destructor
@@ -237,7 +237,8 @@ protected:
     int draw_mode;
     int contrast;
     
-private:
+//private:
+protected:
 
     Protocols* proto;
     const int screensize_X;
@@ -259,8 +260,7 @@ private:
     int win_y2;
     int orientation;
     bool useNOP;
-
-public:    
+  
     unsigned char *buffer;
     unsigned short *buffer16;   
 };

@@ -16,8 +16,9 @@ class I2C_bus : public Protocols
     * @param I2C address
     * @param I2C pin sda
     * @param I2C pin scl
+    * @param reset pin connected to RESET of display
     */ 
-    I2C_bus(int Hz, int address,PinName sda, PinName scl);
+    I2C_bus(int Hz, int address,PinName sda, PinName scl, PinName reset=NC);
  
 protected:
    
@@ -132,6 +133,7 @@ private:
 
     I2C _i2c;
     int _address;
+    DigitalOut _reset;
     
 };
 

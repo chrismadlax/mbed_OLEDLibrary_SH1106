@@ -13,12 +13,13 @@
  
 #include "I2C_bus.h"
 
-I2C_bus::I2C_bus(int Hz, int address, PinName sda, PinName scl)
-    : _i2c(sda,scl)
+I2C_bus::I2C_bus(int Hz, int address, PinName sda, PinName scl, PinName reset)
+    : _i2c(sda,scl), _reset(reset)
 {
     _i2c.frequency(Hz);
     _address = address;
-    //hw_reset();    
+    _reset = 1;
+    hw_reset();    
 }
 
 void I2C_bus::wr_cmd8(unsigned char cmd)
@@ -30,7 +31,10 @@ void I2C_bus::wr_cmd8(unsigned char cmd)
 }
 void I2C_bus::wr_data8(unsigned char data)
 {
-    _i2c.write(data);    // write 8bit
+    char tmp[2];
+    tmp[0] = 0x40;  //data mode
+    tmp[1] = data;
+    _i2c.write(_address,tmp,2);    // write 
 }
 void I2C_bus::wr_cmd16(unsigned short cmd)
 {     
@@ -83,8 +87,9 @@ void I2C_bus::wr_grambuf(unsigned short* data, unsigned int lenght)
     _i2c.write(0x40);          // data continue
     while(lenght)
     {
-        _i2c.write((*data)>>8);    // write 8bit
-        _i2c.write((*data)&0xFF);    // write 8bit
+        //_i2c.write((*data)>>8);      // write high 8bit
+        _i2c.write((*data)&0xFF);    // write low 8bit
+        _i2c.write((*data)>>8);      // write high 8bit
         data++;
         lenght--;
     }
@@ -93,7 +98,11 @@ void I2C_bus::wr_grambuf(unsigned short* data, unsigned int lenght)
 
 void I2C_bus::hw_reset()
 {
-    
+    wait_ms(15);
+    _reset = 0;                        // display reset
+    wait_ms(2);
+    _reset = 1;                       // end reset
+    wait_ms(100);
 }
 void I2C_bus::BusEnable(bool enable)
 {

@@ -1,16 +1,16 @@
-#ifndef MBED_SSD1306_H
-#define MBED_SSD1306_H
+#ifndef MBED_SH1106_H
+#define MBED_SH1106_H
 
 #include "mbed.h"
 #include "LCD.h"
 
-/** Class for SSD1306 display controller
+/** Class for SH1106 display controller
 * to be copypasted and adapted for other controllers
 */
-class SSD1306 : public LCD
+class SH1106 : public LCD
 {
- 
- public:
+
+public:
 
     /** Create a PAR display interface
     * @param displayproto only supports PAR_8
@@ -23,9 +23,9 @@ class SSD1306 : public LCD
     * @param name The name used by the parent class to access the interface
     * @param LCDSIZE_X x size in pixel - optional
     * @param LCDSIZE_Y y size in pixel - optional
-    */ 
-    SSD1306(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const char* name, unsigned int LCDSIZE_X = 128, unsigned  int LCDSIZE_Y = 64);
-  
+    */
+    SH1106(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName DC, PinName WR, PinName RD, const char* name, unsigned int LCDSIZE_X = 128, unsigned  int LCDSIZE_Y = 64);
+
     /** Create an SPI display interface
     * @param displayproto SPI_8 or SPI_16
     * @param Hz SPI speed in Hz
@@ -38,8 +38,8 @@ class SSD1306 : public LCD
     * @param name The name used by the parent class to access the interface
     * @param LCDSIZE_X x size in pixel - optional
     * @param LCDSIZE_Y y size in pixel - optional
-    */ 
-    SSD1306(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const char* name , unsigned int LCDSIZE_X = 128, unsigned  int LCDSIZE_Y = 64);
+    */
+    SH1106(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const char* name , unsigned int LCDSIZE_X = 128, unsigned  int LCDSIZE_Y = 64);
 
     /** Create an I2C display interface
     * @param displayproto I2C_
@@ -47,12 +47,12 @@ class SSD1306 : public LCD
     * @param address I2C address
     * @param sda I2C pin
     * @param scl I2C pin
-    * @param reset pin connected to RESET of display    
+    * @param reset pin connected to RESET of display
     * @param name The name used by the parent class to access the interface
     * @param LCDSIZE_X x size in pixel - optional
     * @param LCDSIZE_Y y size in pixel - optional
-    */ 
-    SSD1306(proto_t displayproto, int Hz, int address, PinName sda, PinName scl, PinName reset, const char* name , unsigned int LCDSIZE_X = 128, unsigned  int LCDSIZE_Y = 64);
+    */
+    SH1106(proto_t displayproto, int Hz, int address, PinName sda, PinName scl, PinName reset, const char* name , unsigned int LCDSIZE_X = 128, unsigned  int LCDSIZE_Y = 64);
 
 
 
@@ -61,54 +61,45 @@ class SSD1306 : public LCD
       * @param o contrast 0-255
       */
     virtual void set_contrast(int o);
-    
+
     /** set automatc horizontal scroll mode
      * @param l_r direction - left = 0, right = 1
      * @param s_page start page
      * @param e_page end page
      * @param speed time between horizontal shift. 0 slow .. 7 fast
      */
-     
+
     /** Framebuffer is used, it needs to be sent to LCD from time to time
     */
     virtual void copy_to_lcd();
 
     /** clear the entire screen
     */
-    virtual void cls();   
+    virtual void cls();
 
     /** Draw a pixel in the specified color.
     * @param x is the horizontal offset to this pixel.
     * @param y is the vertical offset to this pixel.
     * @param color defines the color for the pixel.
-    */    
+    */
     virtual void pixel(int x, int y, unsigned short color);
-    
-    void horizontal_scroll(int l_r,int s_page,int e_page,int speed);
 
-    /** automatic horizontal + vertical scroll mode
-     * @param l_r direction - left = 0, right = 1
-     * @param s_page start page
-     * @param e_page end page
-     * @param v_off vertical offset for scroll
-     * @param speed time between horizontal shift. 0 slow .. 7 fast
-     */
-    void horiz_vert_scroll(int l_r,int s_page,int e_page,int v_off,int speed);
+    /** Read pixel color at location
+    * @param x is the horizontal offset to this pixel.
+    * @param y is the vertical offset to this pixel.
+    * @returns 16bit color, 0000=Black(pixel set), FFFF=White(pixel clear).
+    */
+    virtual unsigned short pixelread(int x, int y);
+protected:
 
-    /** end scroll mode
-     *
-     */
-    void end_scroll(void);
-    protected:
-    
-    
-    /** Init command sequence  
+
+    /** Init command sequence
     */
     void init();
-    
+
     /** set mirror mode
       * @note here overriding the LCD class default one because of not standard commands
-      * @param mode NONE, X, Y, XY 
+      * @param mode NONE, X, Y, XY
       */
     virtual void mirrorXY(mirror_t mode);
 
