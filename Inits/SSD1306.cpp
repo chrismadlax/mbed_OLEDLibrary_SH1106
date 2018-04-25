@@ -11,8 +11,8 @@
 /////////////////////////////////////////////////////////////////////////
 
 
-#define IC_X_SEGS    132 // 132 SEG
-#define IC_Y_COMS    64  // 64  COM
+#define IC_X_SEGS    128 // UC1608 SEG has range 0-239 (239-0 if MX=1), check your datasheet, important for the orientation
+#define IC_Y_COMS    64  // UC1608 COM has range 0-127 (127-0 if MY=1), check your datasheet, important for the orientation
 
 #define SSD1306_SETCONTRAST         0x81
 #define SSD1306_DISPLAYALLON_RESUME 0xA4
@@ -58,9 +58,8 @@ SSD1306::SSD1306(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinNa
 }
 
 SSD1306::SSD1306(proto_t displayproto, int Hz, int address, PinName sda, PinName scl, PinName reset, const char* name , unsigned int LCDSIZE_X, unsigned  int LCDSIZE_Y)
-    : LCD(displayproto, Hz, address, sda, scl,reset, LCDSIZE_X, LCDSIZE_Y, IC_X_SEGS, IC_Y_COMS, name)
+    : LCD(displayproto, Hz, address, sda, scl, reset, LCDSIZE_X, LCDSIZE_Y, IC_X_SEGS, IC_Y_COMS, name)
 {
-    hw_reset();
     init();
     cls();
     set_orientation(1);
@@ -72,7 +71,7 @@ SSD1306::SSD1306(proto_t displayproto, int Hz, int address, PinName sda, PinName
 void SSD1306::init()
 {
     /* Start Initial Sequence ----------------------------------------------------*/
- /* SSD1306   
+    
   //  wr_cmd8(0xE2);   //  sw reset
     wait_ms(15);
     
@@ -115,60 +114,11 @@ void SSD1306::init()
     wr_cmd8(SSD1306_INVERTDISPLAY);
     
     wr_cmd8(SSD1306_DISPLAYON);
-*/    
-
-//SH1106    
-    wr_cmd8(0xAE);//--turn off oled panel
-    wr_cmd8(0x02);//---set low column address
-    wr_cmd8(0x10);//---set high column address
-    wr_cmd8(0x40);//--set start line address  Set Mapping RAM Display Start Line (0x00~0x3F)
-    wr_cmd8(0x81);//--set contrast control register
-     wr_cmd8(0xA0);//--Set contrast
-    wr_cmd8(0xA8);//--set multiplex ratio(1 to 64)
-     wr_cmd8(0x3F);//--1/64 duty
-    wr_cmd8(0xD3);//-set display offset    Shift Mapping RAM Counter (0x00~0x3F)
-     wr_cmd8(0x00);//-not offset
-    wr_cmd8(0xd5);//--set display clock divide ratio/oscillator frequency
-     wr_cmd8(0x80);//--set divide ratio, Set Clock as 100 Frames/Sec
-    wr_cmd8(0xD9);//--set pre-charge period
-     wr_cmd8(0xF1);//Set Pre-Charge as 15 Clocks & Discharge as 1 Clock
-    wr_cmd8(0xDA);//--set com pins hardware configuration
-     wr_cmd8(0x12); // or 0x02
-    wr_cmd8(0xDB);//--set vcomh
-     wr_cmd8(0x40);//Set VCOM Deselect Level
-    //wr_cmd8(0x20);//-Set Page Addressing Mode (0x00/0x01/0x02) // not on SH1106
-    wr_cmd8(0xA4);// Disable Entire Display On (0xa4/0xa5)
-    wr_cmd8(0xA6);// Disable Inverse Display On (0xa6/a7)
-
-    wr_cmd8(0xA1); // reverse order
-    //wr_cmd8(0xC0);//Set COM/Row Scan Direction
-    wr_cmd8(0xC8); //reverse direction    
-    wr_cmd8(0xAF);//--turn on oled panel
 }
 
 ////////////////////////////////////////////////////////////////////
 // functions that overrides the standard ones implemented in LCD.cpp
 ////////////////////////////////////////////////////////////////////
-
-void SSD1306::copy_to_lcd(void)
-{
-
-    for(int page=0; page<8 /*_LCDPAGES */; page++)
-    {
-        wr_cmd8(0x02);             // set column low nibble
-        wr_cmd8(0x10);             // set column hi  nibble
-        wr_cmd8(0xB0+page);        // set page
-        wr_grambuf(buffer16+(page*screensize_X>>1), /*screensize_X*/ 128>>1);   // send whole page pixels as shorts(16bit) not bytes!
-    }
-}
-
-void SSD1306::cls(void)
-{
-    unsigned short tmp = _background^0xFFFF;
-    //memset(buffer,tmp,/*screensize_X*_LCDPAGES*/ 128*64/8);  // clear display buffer
-    memset(buffer,0x00,screensize_X*(screensize_Y>>3));  // clear display buffer
-    copy_to_lcd();
-}
 
 void SSD1306::mirrorXY(mirror_t mode)
 {
@@ -196,18 +146,9 @@ void SSD1306::set_contrast(int o)
     wr_cmd16(0x8100|(o&0xFF));
 }
 
-void SSD1306::pixel(int x, int y, unsigned short color)
-{
-    // first check parameter
-    if((x >= screensize_X) || (y >= screensize_Y) || (x<0) || (y<0)) return;
-
-    //Buffer[(Xpoint + (Ypoint / 8) * sOLED_DIS.OLED_Dis_Column)] |= 1 << (Ypoint % 8);
-    //Buffer[(Xpoint + (Ypoint / 8) * sOLED_DIS.OLED_Dis_Column)] |= 0 << (Ypoint % 8);
-    if (color) {buffer[x+((y>>3)*screensize_X)] |=  0 << (y % 8);}
-    else       {buffer[x+((y>>3)*screensize_X)] |=  1 << (y % 8);}
-    
-
-}
+////////////////////////////////////////////////////////////////////
+// functions that overrides the standard ones implemented in LCD.cpp
+////////////////////////////////////////////////////////////////////
 
 
 const uint8_t scroll_speed[8]={3,2,1,6,0,5,4,7};

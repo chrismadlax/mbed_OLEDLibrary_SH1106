@@ -1,5 +1,5 @@
 /* mbed UniGraphic library - Device specific class
- * SH1106 by Karl Zweimüller
+ * SH1106 by Karl Zweimüller, based on 
  * SSD1306 by Copyright (c) 2015 Peter Drescher
  * Released under the MIT License: http://mbed.org/license/mit
  */
@@ -141,9 +141,10 @@ void SH1106::init()
     wr_cmd8(0xA4);// Disable Entire Display On (0xa4/0xa5)
     wr_cmd8(0xA6);// Disable Inverse Display On (0xa6/a7)
 
-    wr_cmd8(0xA1); // reverse order
-    //wr_cmd8(0xC0);//Set COM/Row Scan Direction
-    wr_cmd8(0xC8); //reverse direction
+    wr_cmd8(0xA0); // normal order
+    //wr_cmd8(0xA1); // reverse order
+    wr_cmd8(0xC0);//Set COM/Row Scan Direction normal
+    //wr_cmd8(0xC8); //reverse direction
     wr_cmd8(0xAF);//--turn on oled panel
 }
 
@@ -155,7 +156,7 @@ void SH1106::copy_to_lcd(void)
 {
 
     for(int page=0; page<8 /*_LCDPAGES */; page++) {
-        wr_cmd8(0x02);             // set column low nibble
+        wr_cmd8(0x02);             // set column low nibble My Display starts at column 2 (up to column 130 of 132)
         wr_cmd8(0x10);             // set column hi  nibble
         wr_cmd8(0xB0+page);        // set page
         wr_grambuf(buffer16+(page*screensize_X>>1), screensize_X>>1);   // send whole page pixels as shorts(16bit) not bytes!

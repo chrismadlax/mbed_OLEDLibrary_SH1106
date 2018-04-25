@@ -47,7 +47,6 @@ class SSD1306 : public LCD
     * @param address I2C address
     * @param sda I2C pin
     * @param scl I2C pin
-    * @param reset pin connected to RESET of display    
     * @param name The name used by the parent class to access the interface
     * @param LCDSIZE_X x size in pixel - optional
     * @param LCDSIZE_Y y size in pixel - optional
@@ -68,22 +67,6 @@ class SSD1306 : public LCD
      * @param e_page end page
      * @param speed time between horizontal shift. 0 slow .. 7 fast
      */
-     
-    /** Framebuffer is used, it needs to be sent to LCD from time to time
-    */
-    virtual void copy_to_lcd();
-
-    /** clear the entire screen
-    */
-    virtual void cls();   
-
-    /** Draw a pixel in the specified color.
-    * @param x is the horizontal offset to this pixel.
-    * @param y is the vertical offset to this pixel.
-    * @param color defines the color for the pixel.
-    */    
-    virtual void pixel(int x, int y, unsigned short color);
-    
     void horizontal_scroll(int l_r,int s_page,int e_page,int speed);
 
     /** automatic horizontal + vertical scroll mode
