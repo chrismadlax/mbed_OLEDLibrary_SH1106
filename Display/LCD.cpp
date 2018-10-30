@@ -35,7 +35,9 @@ LCD::LCD(proto_t displayproto, PortName port, PinName CS, PinName reset, PinName
 {
     if(displayproto==PAR_8) proto = new PAR8(port, CS, reset, DC, WR, RD);  
     useNOP=false;
-    buffer = (unsigned char*) malloc (screensize_X*_LCDPAGES);
+    //buffer = (unsigned char*) malloc (screensize_X*_LCDPAGES);
+    //posix_memalign(void **memptr, size_t alignment, size_t size);
+    posix_memalign((void **)&buffer, 16,screensize_X*_LCDPAGES);
     buffer16 = (unsigned short*)buffer;
     draw_mode = NORMAL;
     set_orientation(1);
@@ -59,7 +61,9 @@ LCD::LCD(proto_t displayproto, PinName* buspins, PinName CS, PinName reset, PinN
         proto = new BUS8(pins, CS, reset, DC, WR, RD);
     }
     useNOP=false;
-    buffer = (unsigned char*) malloc (screensize_X*_LCDPAGES);
+    //buffer = (unsigned char*) malloc (screensize_X*_LCDPAGES);
+    //posix_memalign(void **memptr, size_t alignment, size_t size);
+    posix_memalign((void **)&buffer, 16,screensize_X*_LCDPAGES);
     buffer16 = (unsigned short*)buffer;
     draw_mode = NORMAL;
     set_orientation(1);
@@ -83,7 +87,9 @@ LCD::LCD(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk,
         proto = new SPI16(Hz, mosi, miso, sclk, CS, reset, DC);
         useNOP=true;
     }
-    buffer = (unsigned char*) malloc (screensize_X*_LCDPAGES);
+    //buffer = (unsigned char*) malloc (screensize_X*_LCDPAGES);
+    //posix_memalign(void **memptr, size_t alignment, size_t size);
+    posix_memalign((void **)&buffer, 16,screensize_X*_LCDPAGES);
     buffer16 = (unsigned short*)buffer;
     draw_mode = NORMAL;
   //  cls();
@@ -101,8 +107,11 @@ LCD::LCD(proto_t displayproto, int Hz, int address, PinName sda, PinName scl, Pi
         proto = new I2C_bus(Hz,address,sda,scl, reset);
         useNOP=false;
         }
-    buffer = (unsigned char*) malloc (screensize_X*_LCDPAGES);
+    //buffer = (unsigned char*) malloc (screensize_X*_LCDPAGES);
+    //posix_memalign(void **memptr, size_t alignment, size_t size);
+    posix_memalign((void **)&buffer, 16,screensize_X*_LCDPAGES);
     buffer16 = (unsigned short*)buffer;
+    
     draw_mode = NORMAL;
   //  cls();
     set_orientation(1);
@@ -283,8 +292,10 @@ void LCD::window_pushpixelbuf(unsigned short* color, unsigned int lenght) {
         lenght--;
     }
 }
+
 void LCD::pixel(int x, int y, unsigned short color)
 {
+    /*
     if(!(orientation&1)) SWAP(x,y);
     // first check parameter
     if((x >= screensize_X) || (y >= screensize_Y)) return;
@@ -296,10 +307,12 @@ void LCD::pixel(int x, int y, unsigned short color)
     //buffer[0]=0xFF;
     //buffer[16]=0xAA;
     //buffer[1023]=0xFF;
-
+*/
 }
+
 unsigned short LCD::pixelread(int x, int y)
 {
+    /*
     if(!(orientation&1)) SWAP(x,y);
     // first check parameter
     if((x >= screensize_X) || (y >= screensize_Y)) return 0;
@@ -307,9 +320,12 @@ unsigned short LCD::pixelread(int x, int y)
     
     if((buffer[(x>>3)+(y*_IC_X_SEGS>>4)] & (1 << (7-(x&7))))==0) return 0xFFFF ;  // pixel not set, White
     else return 0; // pixel set, Black
+    */
+    return 0;
 }
 void LCD::copy_to_lcd(void)
 {
+    /*
     unsigned short i=0;
     unsigned short setcolcmd = 0x0010 | ((col_offset&0xF)<<8) | (col_offset>>4);
     for(int page=0; page<_LCDPAGES; page++)
@@ -321,9 +337,11 @@ void LCD::copy_to_lcd(void)
         wr_grambuf(buffer16+i, screensize_X>>1);   // send whole page pixels
         i+=screensize_X>>1;
     }
+    */
 }
 void LCD::cls(void)
 {
+    /*
     unsigned short tmp = _background^0xFFFF;
     memset(buffer,tmp,screensize_X*_LCDPAGES);  // clear display buffer
     unsigned short setcolcmd = 0x0010 | ((col_offset&0xF)<<8) | (col_offset>>4);
@@ -335,6 +353,7 @@ void LCD::cls(void)
         wr_cmd8(0xB0|(page+page_offset));      // set page
         wr_gram(tmp, screensize_X>>1);   // send whole page pixels = background
     }
+    */
 }
 int LCD::sizeX()
 {

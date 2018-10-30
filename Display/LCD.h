@@ -261,6 +261,7 @@ protected:
     int orientation;
     bool useNOP;
   
+    
     unsigned char *buffer;
     unsigned short *buffer16;   
 };

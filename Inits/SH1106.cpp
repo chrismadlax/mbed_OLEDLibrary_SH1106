@@ -1,5 +1,5 @@
 /* mbed UniGraphic library - Device specific class
- * SH1106 by Karl Zweimüller, based on 
+ * SH1106 by Karl Zweimüller, based on
  * SSD1306 by Copyright (c) 2015 Peter Drescher
  * Released under the MIT License: http://mbed.org/license/mit
  */
@@ -46,6 +46,7 @@ SH1106::SH1106(proto_t displayproto, PortName port, PinName CS, PinName reset, P
     cls();
     set_orientation(1);
     locate(0,0);
+    copy_to_lcd();
 }
 SH1106::SH1106(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName sclk, PinName CS, PinName reset, PinName DC, const char *name, unsigned int LCDSIZE_X, unsigned  int LCDSIZE_Y)
     : LCD(displayproto, Hz, mosi, miso, sclk, CS, reset, DC, LCDSIZE_X, LCDSIZE_Y, IC_X_SEGS, IC_Y_COMS, name)
@@ -56,6 +57,7 @@ SH1106::SH1106(proto_t displayproto, int Hz, PinName mosi, PinName miso, PinName
     cls();
     set_orientation(1);
     locate(0,0);
+    copy_to_lcd();
 }
 
 SH1106::SH1106(proto_t displayproto, int Hz, int address, PinName sda, PinName scl, PinName reset, const char* name , unsigned int LCDSIZE_X, unsigned  int LCDSIZE_Y)
@@ -66,6 +68,7 @@ SH1106::SH1106(proto_t displayproto, int Hz, int address, PinName sda, PinName s
     cls();
     set_orientation(1);
     locate(0,0);
+    copy_to_lcd();
 }
 
 
@@ -155,10 +158,10 @@ void SH1106::init()
 void SH1106::copy_to_lcd(void)
 {
 
-    for(int page=0; page<8 /*_LCDPAGES */; page++) {
+    for(uint8_t page=0; page<8 /*_LCDPAGES */; page++) {
+        wr_cmd8(0xB0+page);        // set page
         wr_cmd8(0x02);             // set column low nibble My Display starts at column 2 (up to column 130 of 132)
         wr_cmd8(0x10);             // set column hi  nibble
-        wr_cmd8(0xB0+page);        // set page
         wr_grambuf(buffer16+(page*screensize_X>>1), screensize_X>>1);   // send whole page pixels as shorts(16bit) not bytes!
     }
 }
@@ -168,7 +171,9 @@ void SH1106::cls(void)
     unsigned short tmp = _background^0xFFFF;
     //memset(buffer,tmp,/*screensize_X*_LCDPAGES*/ 128*64/8);  // clear display buffer
     memset(buffer,0x00,screensize_X*(screensize_Y>>3));  // clear display buffer
-    copy_to_lcd();
+    if (get_auto_up()) {
+        copy_to_lcd();
+    }
 }
 
 void SH1106::mirrorXY(mirror_t mode)
@@ -204,12 +209,10 @@ void SH1106::pixel(int x, int y, unsigned short color)
     //Buffer[(Xpoint + (Ypoint / 8) * sOLED_DIS.OLED_Dis_Column)] |= 1 << (Ypoint % 8);
     //Buffer[(Xpoint + (Ypoint / 8) * sOLED_DIS.OLED_Dis_Column)] |= 0 << (Ypoint % 8);
     if (color) {
-        buffer[x+((y>>3)*screensize_X)] |=  0 << (y % 8);
-    } else       {
         buffer[x+((y>>3)*screensize_X)] |=  1 << (y % 8);
+    } else       {
+        buffer[x+((y>>3)*screensize_X)] |=  0 << (y % 8);
     }
-
-
 }
 
 
@@ -221,6 +224,6 @@ unsigned short SH1106::pixelread(int x, int y)
     //Buffer[(Xpoint + (Ypoint / 8) * sOLED_DIS.OLED_Dis_Column)] |= 1 << (Ypoint % 8);
     //Buffer[(Xpoint + (Ypoint / 8) * sOLED_DIS.OLED_Dis_Column)] |= 0 << (Ypoint % 8);
     if (buffer[x+((y>>3)*screensize_X)] &  1 << (y % 8) == 0)
-        return 0xFFFF ;  // pixel not set, White
-    else return 0; // pixel set, Black
+        return Black ;  // pixel not set, Black
+    else return White; // pixel set, White
 }
